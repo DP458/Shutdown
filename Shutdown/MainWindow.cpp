@@ -81,7 +81,7 @@ namespace MainWindow
 
 		case WM_DESTROY:
 			PostQuitMessage(0);
-			break;
+		break;
 
 		case WM_COMMAND:
 
@@ -106,7 +106,7 @@ namespace MainWindow
 						EnableWindow(MainWindow::hForceCheckBox, MainWindow::bHasShutdownPrivilege);
 						EnableWindow(MainWindow::hMessageEdit, MainWindow::bHasShutdownPrivilege);
 
-						break;
+					break;
 
 					case ID_ACTION_LOCK: case ID_ACTION_LOGOFF:
 
@@ -116,7 +116,7 @@ namespace MainWindow
 						EnableWindow(MainWindow::hForceCheckBox, FALSE);
 						EnableWindow(MainWindow::hMessageEdit, FALSE);
 
-						break;
+					break;
 
 					case ID_ACTION_CANCEL:
 
@@ -126,15 +126,15 @@ namespace MainWindow
 						EnableWindow(MainWindow::hForceCheckBox, FALSE);
 						EnableWindow(MainWindow::hMessageEdit, FALSE);
 
-						break;
+					break;
 
 					}
 
-					break;
+				break;
 
 				}
 
-				break;
+			break;
 
 			case BN_CLICKED:
 
@@ -157,7 +157,7 @@ namespace MainWindow
 								MB_ICONSTOP | MB_OK
 							);
 
-						break;
+					break;
 
 					case ID_ACTION_REBOOT:
 
@@ -170,7 +170,7 @@ namespace MainWindow
 								MB_ICONSTOP | MB_OK
 							);
 
-						break;
+					break;
 
 					case ID_ACTION_LOGOFF:
 
@@ -183,7 +183,7 @@ namespace MainWindow
 								MB_ICONSTOP | MB_OK
 							);
 
-						break;
+					break;
 
 					case ID_ACTION_LOCK:
 
@@ -209,7 +209,7 @@ namespace MainWindow
 							MB_ICONSTOP | MB_OK
 						);
 
-						break;
+					break;
 
 					case ID_ACTION_CANCEL:
 
@@ -218,11 +218,11 @@ namespace MainWindow
 							(LPWSTR)NULL
 						);
 
-						break;
+					break;
 
 					}
 
-					break;
+				break;
 
 				case IDS_TIMER_DEF_BUTTON_TITLE:
 
@@ -230,34 +230,60 @@ namespace MainWindow
 					Edit_SetSel(MainWindow::hTimerEdit, 2, 2);
 					SetFocus(MainWindow::hTimerEdit);
 
-					break;
+				break;
 
-				case EN_CHANGE:
+				//
 
-					switch (LOWORD(wParam))
-					{
+				case IDS_EXIT_POPUP_ITEM:
 
-					case IDS_TIMER_EDIT_TITLE:
+					PostMessage
+					(
+						hWnd,
+						WM_CLOSE,
+						(WPARAM)NULL,
+						(LPARAM)NULL
+					);
 
-						if (GetWindowTextLength(MainWindow::hTimerEdit) <= 0)
-						{
-							SetWindowText(MainWindow::hTimerEdit, STR_TIMER_EDIT_TITLE);
-							Edit_SetSel(MainWindow::hTimerEdit, 2, 2);
-						}
+				return 0;
 
-						break;
+				case IDS_ABOUT_POPUP_ITEM:
 
-					}
-
-					break;
-
-				}
+					MessageBox
+					(
+						hWnd,
+						L"An application  for shutting down the system",
+						L"About",
+						MB_ICONINFORMATION | MB_OK
+					);
 
 				break;
 
-			}
+				}
 
 			break;
+
+			case EN_CHANGE:
+
+				switch (LOWORD(wParam))
+				{
+
+				case IDS_TIMER_EDIT_TITLE:
+
+					if (GetWindowTextLength(MainWindow::hTimerEdit) <= 0)
+					{
+						SetWindowText(MainWindow::hTimerEdit, STR_TIMER_EDIT_TITLE);
+						Edit_SetSel(MainWindow::hTimerEdit, 2, 2);
+					}
+
+				break;
+
+				}
+
+			break;
+
+			}
+
+		break;
 
 		}
 
@@ -305,6 +331,16 @@ namespace MainWindow
 
 		}
 
+		HMENU hFilePopupMenu = CreatePopupMenu();
+		AppendMenu(hFilePopupMenu, MF_STRING, IDS_EXIT_POPUP_ITEM, STR_EXIT_POPUP_ITEM);
+
+		HMENU hHelpPopupMenu = CreatePopupMenu();
+		AppendMenu(hHelpPopupMenu, MF_STRING, IDS_ABOUT_POPUP_ITEM, STR_ABOUT_POPUP_ITEM);
+
+		HMENU hMainMenu = CreateMenu();
+		AppendMenu(hMainMenu, MF_POPUP | MF_STRING, (UINT_PTR)hFilePopupMenu, STR_FILE_POPUP_MENU);
+		AppendMenu(hMainMenu, MF_POPUP | MF_STRING, (UINT_PTR)hHelpPopupMenu, STR_HELP_POPUP_MENU);
+
 		MainWindow::hMainWindow = CreateWindowEx
 		(
 			(DWORD)NULL,
@@ -313,10 +349,10 @@ namespace MainWindow
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT,
 			CW_USEDEFAULT,
-			325,
-			380,
+			326,
+			394,
 			(HWND)NULL,
-			(HMENU)NULL,
+			hMainMenu,
 			hInstance,
 			(LPVOID)NULL
 		);
@@ -331,7 +367,7 @@ namespace MainWindow
 			STR_ACTION_STATIC_TITLE,
 			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
 			10,
-			10,
+			5,
 			180,
 			20,
 			MainWindow::hMainWindow,
@@ -347,7 +383,7 @@ namespace MainWindow
 			STR_ACTIONS_COMBOBOX_TITLE,
 			WS_VISIBLE | WS_CHILD | CBS_DROPDOWNLIST | CBS_HASSTRINGS,
 			10,
-			33,
+			28,
 			200,
 			40,
 			MainWindow::hMainWindow,
@@ -369,7 +405,7 @@ namespace MainWindow
 			STR_EXECACTION_BUTTON_TITLE,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
 			220,
-			30,
+			25,
 			80,
 			30,
 			MainWindow::hMainWindow,
@@ -385,7 +421,7 @@ namespace MainWindow
 			STR_TIMER_STATIC_TITLE,
 			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
 			10,
-			70,
+			65,
 			180,
 			20,
 			MainWindow::hMainWindow,
@@ -401,7 +437,7 @@ namespace MainWindow
 			STR_TIMER_EDIT_TITLE,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | ES_LEFT | ES_NUMBER | ES_NOHIDESEL,
 			10,
-			95,
+			90,
 			40,
 			20,
 			MainWindow::hMainWindow,
@@ -419,7 +455,7 @@ namespace MainWindow
 			STR_TIMER_DEF_BUTTON_TITLE,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
 			60,
-			90,
+			85,
 			80,
 			30,
 			MainWindow::hMainWindow,
@@ -435,7 +471,7 @@ namespace MainWindow
 			STR_FORCE_CHECKBOX_TITLE,
 			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
 			10,
-			130,
+			125,
 			160,
 			20,
 			MainWindow::hMainWindow,
@@ -451,7 +487,7 @@ namespace MainWindow
 			STR_MESSAGE_STATIC_TITLE,
 			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
 			10,
-			160,
+			155,
 			180,
 			20,
 			MainWindow::hMainWindow,
@@ -467,7 +503,7 @@ namespace MainWindow
 			STR_MESSAGE_EDIT_TITLE,
 			WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
 			10,
-			180,
+			175,
 			290,
 			150,
 			MainWindow::hMainWindow,

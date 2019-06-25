@@ -1,6 +1,6 @@
 #define MyAppName "Shutdown"
 #define MyAppPublisher "DP458"
-#define MyAppVersion "6.4.0.0"
+#define MyAppVersion "6.4.1.0"
 #define MyAppExeName "Shutdown.exe"
 #define MyProjectFolder "..\"
 #define QuickLaunchFolder "{userappdata}\Microsoft\Internet Explorer\Quick Launch"
