@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Icons">
+      <UniqueIdentifier>{d78d08c9-40d5-46f8-b598-1f4e4dc6bdf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NativeShutdown">
+      <UniqueIdentifier>{e66144d1-e4c7-4cf7-843b-43f8744b2d69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainWindow">
+      <UniqueIdentifier>{b5b39714-5b98-4535-805f-f1773ee540a8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Shutdown.cpp" />
+    <ClCompile Include="NativeShutdown.cpp">
+      <Filter>NativeShutdown</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>MainWindow</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Lock.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="Logoff.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="Reboot.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="Shutdown.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="ShutdownDialog.ico">
+      <Filter>Icons</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Shutdown.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resources.h" />
+    <ClInclude Include="NativeShutdown.h">
+      <Filter>NativeShutdown</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>MainWindow</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Shutdown.manifest" />
+  </ItemGroup>
+</Project>
