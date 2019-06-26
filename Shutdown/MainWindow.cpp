@@ -381,7 +381,7 @@ namespace MainWindow
 
 		{
 
-			int parts[2] = { 155 };
+			int parts[2] = { 155, 0};
 
 			SendMessage
 			(
