@@ -11,6 +11,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
+#include <CommCtrl.h>
 #include "NativeShutdown.h"
 #include "MainWindow.h"
 
@@ -54,18 +55,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//
 
-	if (!MainWindow::CreateMainWindow(hInstance))
+	MainWindow::Initialize(hInstance);
+
+	if (!MainWindow::RegisterMainWindowClass())
+		return -1;
+
+	if (!MainWindow::CreateMainWindow())
 		return -1;
 
 	MainWindow::ShowMainWindow();
 
 	if (!MainWindow::HasShutdownPrivileg())
-		MessageBox
+		TaskDialog
 		(
 			MainWindow::GetMainWindowHandle(),
+			hInstance,
+			L"Error",
 			L"Failed to get shutdown privilege for current process",
-			(LPCWSTR)NULL,
-			MB_ICONSTOP | MB_OK
+			L"Possibly this privilege has restricted by administrator",
+			TDCBF_OK_BUTTON,
+			TD_ERROR_ICON,
+			(int*)NULL
 		);
 
 	//

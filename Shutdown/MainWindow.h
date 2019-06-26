@@ -3,9 +3,11 @@
 namespace MainWindow
 {
 
+	void Initialize(HINSTANCE hInstance);
 	BOOL HasShutdownPrivileg();
 	HWND GetMainWindowHandle();
-	BOOL CreateMainWindow(HINSTANCE hInstance);
+	BOOL RegisterMainWindowClass();
+	BOOL CreateMainWindow();
 	BOOL ShowMainWindow();
 
 }
