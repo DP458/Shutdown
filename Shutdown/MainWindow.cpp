@@ -16,7 +16,6 @@ namespace MainWindow
 
 	BOOL bHasShutdownPrivilege = FALSE;
 	HINSTANCE hMainInstance;
-	ATOM hMainWindowClass;
 	HWND hMainWindow;
 	HWND hActionsComboBox;
 	HWND hExecActionButton;
@@ -28,7 +27,6 @@ namespace MainWindow
 	HWND hForceCheckBox;
 	HWND hPlannedCheckBox;
 	HWND hMessageEdit;
-	HWND hStatusBar;
 
 	BOOL StartShutdown(BOOL bRebootAfterShutdown);
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -64,14 +62,12 @@ namespace MainWindow
 		wcex.hInstance = MainWindow::hMainInstance;
 		wcex.hIcon = LoadIcon(MainWindow::hMainInstance, MAKEINTRESOURCE(IDI_ICON1));
 		wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
-		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wcex.lpszMenuName = NULL;
 		wcex.lpszClassName = STR_APP_CLASS;
 		wcex.hIconSm = LoadIcon(MainWindow::hMainInstance, MAKEINTRESOURCE(IDI_ICON1));
 
-		MainWindow::hMainWindowClass = RegisterClassEx(&wcex);
-
-		return (MainWindow::hMainWindowClass) ? TRUE : FALSE;
+		return RegisterClassEx(&wcex) ? TRUE : FALSE;
 
 	}
 
@@ -79,14 +75,65 @@ namespace MainWindow
 	{
 
 		HMENU hFilePopupMenu = CreatePopupMenu();
-		AppendMenu(hFilePopupMenu, MF_STRING, IDS_EXIT_POPUP_ITEM, STR_EXIT_POPUP_ITEM);
+
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_STRING,
+			IDS_SYSTEMDIALOG_POPUP_ITEM,
+			STR_SYSTEMDIALOG_POPUP_ITEM
+		);
+		AppendMenuW
+		(
+			hFilePopupMenu,
+			MF_SEPARATOR,
+			(UINT_PTR)NULL,
+			(LPCWSTR)NULL
+		);
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_STRING,
+			IDS_EXIT_POPUP_ITEM,
+			STR_EXIT_POPUP_ITEM
+		);
 
 		HMENU hHelpPopupMenu = CreatePopupMenu();
-		AppendMenu(hHelpPopupMenu, MF_STRING, IDS_ABOUT_POPUP_ITEM, STR_ABOUT_POPUP_ITEM);
+		AppendMenu
+		(
+			hHelpPopupMenu,
+			MF_STRING,
+			IDS_ABOUT_POPUP_ITEM,
+			STR_ABOUT_POPUP_ITEM
+		);
 
 		HMENU hMainMenu = CreateMenu();
-		AppendMenu(hMainMenu, MF_POPUP | MF_STRING, (UINT_PTR)hFilePopupMenu, STR_FILE_POPUP_MENU);
-		AppendMenu(hMainMenu, MF_POPUP | MF_STRING, (UINT_PTR)hHelpPopupMenu, STR_HELP_POPUP_MENU);
+		AppendMenu
+		(
+			hMainMenu,
+			MF_POPUP | MF_STRING,
+			(UINT_PTR)hFilePopupMenu,
+			STR_FILE_POPUP_MENU
+		);
+		AppendMenu
+		(
+			hMainMenu,
+			MF_POPUP | MF_STRING,
+			(UINT_PTR)hHelpPopupMenu,
+			STR_HELP_POPUP_MENU
+		);
+
+		{
+
+			MENUINFO info = { 0 };
+			info.cbSize = sizeof(info);
+			GetMenuInfo(hMainMenu, &info);
+
+			info.fMask = info.fMask | MIM_STYLE;
+			info.dwStyle = info.dwStyle | MNS_NOTIFYBYPOS;
+			SetMenuInfo(hMainMenu, &info);
+
+		}
 
 		MainWindow::hMainWindow = CreateWindowEx
 		(
@@ -97,7 +144,7 @@ namespace MainWindow
 			CW_USEDEFAULT,
 			CW_USEDEFAULT,
 			326,
-			521,
+			498,
 			(HWND)NULL,
 			hMainMenu,
 			MainWindow::hMainInstance,
@@ -108,292 +155,6 @@ namespace MainWindow
 		{
 			DestroyMenu(hMainMenu);
 			return FALSE;
-		}
-
-
-		CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_STATIC,
-			STR_ACTION_STATIC_TITLE,
-			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
-			10,
-			5,
-			180,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_ACTION_STATIC_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hActionsComboBox = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_COMBOBOX,
-			STR_ACTIONS_COMBOBOX_TITLE,
-			WS_VISIBLE | WS_CHILD | CBS_DROPDOWNLIST | CBS_HASSTRINGS,
-			10,
-			28,
-			200,
-			40,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_ACTIONS_COMBOBOX_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_SHUTDOWN, ACTION_SHUTDOWN);
-		ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_REBOOT, ACTION_REBOOT);
-		ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_LOGOFF, ACTION_LOGOFF);
-		ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_LOCK, ACTION_LOCK);
-		ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_CANCEL, ACTION_CANCEL);
-
-		MainWindow::hExecActionButton = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_EXECACTION_BUTTON_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-			220,
-			25,
-			80,
-			30,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_EXECACTION_BUTTON_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_STATIC,
-			STR_COMPUTERS_STATIC_TITLE,
-			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
-			10,
-			65,
-			180,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_COMPUTERS_STATIC_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hComputersEdit = CreateWindowEx
-		(
-			WS_EX_CLIENTEDGE,
-			WC_EDIT,
-			STR_COMPUTERS_EDIT_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_READONLY | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
-			10,
-			85,
-			200,
-			75,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_COMPUTERS_EDIT_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hAddComputersButton = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_ADDCOMPUTERS_BUTTON_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-			220,
-			85,
-			80,
-			30,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_ADDCOMPUTERS_BUTTON_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hRemoveComputersButton = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_REMOVECOMPUTERS_BUTTON_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-			220,
-			120,
-			80,
-			30,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_REMOVECOMPUTERS_BUTTON_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_STATIC,
-			STR_TIMER_STATIC_TITLE,
-			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
-			10,
-			170,
-			180,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_TIMER_STATIC_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hTimerEdit = CreateWindowEx
-		(
-			WS_EX_CLIENTEDGE,
-			WC_EDIT,
-			STR_TIMER_EDIT_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | ES_LEFT | ES_NUMBER | ES_NOHIDESEL,
-			10,
-			195,
-			40,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_TIMER_EDIT_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		Edit_LimitText(MainWindow::hTimerEdit, 4);
-
-		MainWindow::hDefTimerButton = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_TIMER_DEF_BUTTON_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-			60,
-			190,
-			80,
-			30,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_TIMER_DEF_BUTTON_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hForceCheckBox = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_FORCE_CHECKBOX_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
-			10,
-			230,
-			160,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_FORCE_CHECKBOX_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hPlannedCheckBox = CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_BUTTON,
-			STR_PLANNED_CHECKBOX_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
-			175,
-			230,
-			160,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_PLANNED_CHECKBOX_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		Button_SetCheck(MainWindow::hPlannedCheckBox, TRUE);
-
-		CreateWindowEx
-		(
-			(DWORD)NULL,
-			WC_STATIC,
-			STR_MESSAGE_STATIC_TITLE,
-			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
-			10,
-			260,
-			180,
-			20,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_MESSAGE_STATIC_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		MainWindow::hMessageEdit = CreateWindowEx
-		(
-			WS_EX_CLIENTEDGE,
-			WC_EDIT,
-			STR_MESSAGE_EDIT_TITLE,
-			WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
-			10,
-			280,
-			290,
-			150,
-			MainWindow::hMainWindow,
-			(HMENU)IDS_MESSAGE_EDIT_TITLE,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		Edit_LimitText(MainWindow::hMessageEdit, 511);
-
-		MainWindow::hStatusBar = CreateWindowEx
-		(
-			(DWORD)NULL,
-			STATUSCLASSNAME,
-			(LPCWSTR)NULL,
-			WS_VISIBLE | WS_CHILD | SBARS_TOOLTIPS | SBARS_SIZEGRIP,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			MainWindow::hMainWindow,
-			(HMENU)NULL,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		PostMessage
-		(
-			MainWindow::hStatusBar,
-			SB_SETUNICODEFORMAT,
-			(WPARAM)TRUE,
-			(LPARAM)NULL
-		);
-
-		PostMessage
-		(
-			MainWindow::hStatusBar,
-			SB_SIMPLE,
-			(WPARAM)FALSE,
-			(LPARAM)NULL
-		);
-
-		{
-
-			int parts[2] = { 155, 0};
-
-			SendMessage
-			(
-				MainWindow::hStatusBar,
-				SB_SETPARTS,
-				(WPARAM)2,
-				(LPARAM)parts
-			);
-
-			//PostMessage(MainWindow::hStatusBar, SB_SETTEXT, 0, (LPARAM)L"Statusbar, Part 1");
-			//PostMessage(MainWindow::hStatusBar, SB_SETTEXT, 1 | SBT_NOBORDERS, (LPARAM)L" fghfg ");
-
 		}
 
 		bHasShutdownPrivilege = NativeShutdown::SetShutdownPrivilege(true);
@@ -469,9 +230,265 @@ namespace MainWindow
 		switch (message)
 		{
 
+		case WM_CREATE:
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_STATIC,
+				STR_ACTION_STATIC_TITLE,
+				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+				10,
+				5,
+				180,
+				20,
+				hWnd,
+				(HMENU)IDS_ACTION_STATIC_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hActionsComboBox = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_COMBOBOX,
+				STR_ACTIONS_COMBOBOX_TITLE,
+				WS_VISIBLE | WS_CHILD | CBS_DROPDOWNLIST | CBS_HASSTRINGS,
+				10,
+				28,
+				200,
+				40,
+				hWnd,
+				(HMENU)IDS_ACTIONS_COMBOBOX_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_SHUTDOWN, ACTION_SHUTDOWN);
+			ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_REBOOT, ACTION_REBOOT);
+			ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_LOGOFF, ACTION_LOGOFF);
+			ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_LOCK, ACTION_LOCK);
+			ComboBox_InsertString(MainWindow::hActionsComboBox, ID_ACTION_CANCEL, ACTION_CANCEL);
+
+			MainWindow::hExecActionButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_EXECACTION_BUTTON_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				220,
+				25,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_EXECACTION_BUTTON_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_STATIC,
+				STR_COMPUTERS_STATIC_TITLE,
+				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+				10,
+				65,
+				180,
+				20,
+				hWnd,
+				(HMENU)IDS_COMPUTERS_STATIC_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hComputersEdit = CreateWindowEx
+			(
+				WS_EX_CLIENTEDGE,
+				WC_EDIT,
+				STR_COMPUTERS_EDIT_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_READONLY | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
+				10,
+				85,
+				200,
+				75,
+				hWnd,
+				(HMENU)IDS_COMPUTERS_EDIT_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hAddComputersButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_ADDCOMPUTERS_BUTTON_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				220,
+				85,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_ADDCOMPUTERS_BUTTON_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hRemoveComputersButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_REMOVECOMPUTERS_BUTTON_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				220,
+				120,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_REMOVECOMPUTERS_BUTTON_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_STATIC,
+				STR_TIMER_STATIC_TITLE,
+				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+				10,
+				170,
+				180,
+				20,
+				hWnd,
+				(HMENU)IDS_TIMER_STATIC_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hTimerEdit = CreateWindowEx
+			(
+				WS_EX_CLIENTEDGE,
+				WC_EDIT,
+				STR_TIMER_EDIT_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | ES_LEFT | ES_NUMBER | ES_NOHIDESEL,
+				10,
+				195,
+				40,
+				20,
+				hWnd,
+				(HMENU)IDS_TIMER_EDIT_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			Edit_LimitText(MainWindow::hTimerEdit, 4);
+
+			MainWindow::hDefTimerButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_TIMER_DEF_BUTTON_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				60,
+				190,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_TIMER_DEF_BUTTON_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hForceCheckBox = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_FORCE_CHECKBOX_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
+				10,
+				230,
+				160,
+				20,
+				hWnd,
+				(HMENU)IDS_FORCE_CHECKBOX_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hPlannedCheckBox = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_PLANNED_CHECKBOX_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
+				175,
+				230,
+				160,
+				20,
+				hWnd,
+				(HMENU)IDS_PLANNED_CHECKBOX_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			Button_SetCheck(MainWindow::hPlannedCheckBox, TRUE);
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_STATIC,
+				STR_MESSAGE_STATIC_TITLE,
+				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+				10,
+				260,
+				180,
+				20,
+				hWnd,
+				(HMENU)IDS_MESSAGE_STATIC_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			MainWindow::hMessageEdit = CreateWindowEx
+			(
+				WS_EX_CLIENTEDGE,
+				WC_EDIT,
+				STR_MESSAGE_EDIT_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
+				10,
+				280,
+				290,
+				150,
+				hWnd,
+				(HMENU)IDS_MESSAGE_EDIT_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			Edit_LimitText(MainWindow::hMessageEdit, 511);
+
+		break;
+
 		case WM_DESTROY:
 			PostQuitMessage(0);
 		break;
+
+		case WM_CTLCOLORSTATIC:
+
+		{
+			HWND hWnd = (HWND)lParam;
+
+			if
+			(
+				(hWnd == MainWindow::hComputersEdit)
+				||(hWnd == MainWindow::hTimerEdit)
+				||(hWnd == MainWindow::hMessageEdit)
+			)
+				break;
+		}
+
+		return (LRESULT)(COLOR_WINDOW + 1);
 
 		case WM_COMMAND:
 
@@ -548,12 +565,16 @@ namespace MainWindow
 					case ID_ACTION_SHUTDOWN:
 
 						if (!MainWindow::StartShutdown(FALSE))
-							MessageBox
+							TaskDialog
 							(
 								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
 								L"Failed to shutdown current system",
-								(LPCWSTR)NULL,
-								MB_ICONSTOP | MB_OK
+								(PCWSTR)NULL,
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
 							);
 
 					break;
@@ -561,12 +582,16 @@ namespace MainWindow
 					case ID_ACTION_REBOOT:
 
 						if (!MainWindow::StartShutdown(TRUE))
-							MessageBox
+							TaskDialog
 							(
 								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
 								L"Failed to reboot current system",
-								(LPCWSTR)NULL,
-								MB_ICONSTOP | MB_OK
+								(PCWSTR)NULL,
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
 							);
 
 					break;
@@ -574,12 +599,16 @@ namespace MainWindow
 					case ID_ACTION_LOGOFF:
 
 						if (!NativeShutdown::UserLogOff())
-							MessageBox
+							TaskDialog
 							(
 								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
 								L"Failed to log off current user",
-								(LPCWSTR)NULL,
-								MB_ICONSTOP | MB_OK
+								(PCWSTR)NULL,
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
 							);
 
 					break;
@@ -600,12 +629,16 @@ namespace MainWindow
 							return 0;
 						}
 
-						MessageBox
+						TaskDialog
 						(
 							hWnd,
+							MainWindow::hMainInstance,
+							L"Error",
 							L"Failed to lock current user",
-							(LPCWSTR)NULL,
-							MB_ICONSTOP | MB_OK
+							(PCWSTR)NULL,
+							TDCBF_OK_BUTTON,
+							TD_ERROR_ICON,
+							(int*)NULL
 						);
 
 					break;
@@ -621,7 +654,7 @@ namespace MainWindow
 						if(!result)
 							TaskDialog
 							(
-								MainWindow::GetMainWindowHandle(),
+								hWnd,
 								MainWindow::hMainInstance,
 								L"Error",
 								L"Failed to cancel shutdown",
@@ -678,36 +711,6 @@ namespace MainWindow
 
 				break;
 
-				//
-
-				case IDS_EXIT_POPUP_ITEM:
-
-					PostMessage
-					(
-						hWnd,
-						WM_CLOSE,
-						(WPARAM)NULL,
-						(LPARAM)NULL
-					);
-
-				return 0;
-
-				case IDS_ABOUT_POPUP_ITEM:
-
-					TaskDialog
-					(
-						hWnd,
-						MainWindow::hMainInstance,
-						STR_ABOUT_POPUP_ITEM,
-						STR_APP_TITLE,
-						STR_APP_DESCRIPTION,
-						TDCBF_OK_BUTTON,
-						TD_INFORMATION_ICON,
-						(int*)NULL
-					);
-
-				break;
-
 				}
 
 			break;
@@ -728,6 +731,77 @@ namespace MainWindow
 				break;
 
 				}
+
+			break;
+
+			}
+
+		break;
+
+		case WM_MENUCOMMAND:
+
+			switch
+			(
+				GetMenuItemID((HMENU)lParam, (int)wParam)
+			)
+			{
+
+			case IDS_SYSTEMDIALOG_POPUP_ITEM:
+
+				if (NativeShutdown::ShowShutdownDialog() != S_OK)
+				{
+
+					TaskDialog
+					(
+						hWnd,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to show system shutdown dialog",
+						(PCWSTR)NULL,
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+
+					break;
+
+				}
+
+				PostMessage
+				(
+					hWnd,
+					WM_CLOSE,
+					(WPARAM)NULL,
+					(LPARAM)NULL
+				);
+
+			return 0;
+
+			case IDS_EXIT_POPUP_ITEM:
+
+				PostMessage
+				(
+					hWnd,
+					WM_CLOSE,
+					(WPARAM)NULL,
+					(LPARAM)NULL
+				);
+
+			return 0;
+
+			case IDS_ABOUT_POPUP_ITEM:
+
+				TaskDialog
+				(
+					hWnd,
+					MainWindow::hMainInstance,
+					STR_ABOUT_POPUP_ITEM,
+					STR_APP_TITLE,
+					STR_APP_DESCRIPTION,
+					TDCBF_OK_BUTTON,
+					TD_INFORMATION_ICON,
+					(int*)NULL
+				);
 
 			break;
 
