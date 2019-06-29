@@ -10,6 +10,9 @@
     <Filter Include="MainWindow">
       <UniqueIdentifier>{b5b39714-5b98-4535-805f-f1773ee540a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AddComputersDialog">
+      <UniqueIdentifier>{3dc020e8-3044-470c-ba8a-fa5a6724cdef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shutdown.cpp" />
@@ -18,6 +21,9 @@
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <Filter>MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="AddComputersDialog.cpp">
+      <Filter>AddComputersDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="MainWindow.h">
       <Filter>MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="AddComputersDialog.h">
+      <Filter>AddComputersDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 namespace NativeShutdown
 {
 
-	BOOL SetShutdownPrivilege(BOOL EnablePrivilege);
+	BOOL SetShutdownPrivilege(LPCWSTR lpSystemName, BOOL EnablePrivilege);
 	HRESULT ShowShutdownDialog();
 	BOOL StartShutdown(BOOL bRebootAfterShutdown);
 	BOOL StopShutdown();

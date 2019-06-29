@@ -9,7 +9,7 @@
 
 // Private
 
-BOOL SetPrivilege(HANDLE hToken, LPCWSTR lpszPrivilege, BOOL EnablePrivilege)
+BOOL SetPrivilege(LPCWSTR lpSystemName, HANDLE hToken, LPCWSTR lpszPrivilege, BOOL EnablePrivilege)
 {
 
 	TOKEN_PRIVILEGES tp;
@@ -18,7 +18,7 @@ BOOL SetPrivilege(HANDLE hToken, LPCWSTR lpszPrivilege, BOOL EnablePrivilege)
 
 	BOOL result = LookupPrivilegeValue
 	(
-		NULL,
+		lpSystemName,
 		lpszPrivilege,
 		&(tp.Privileges[0].Luid)
 	);
@@ -47,7 +47,7 @@ BOOL SetPrivilege(HANDLE hToken, LPCWSTR lpszPrivilege, BOOL EnablePrivilege)
 
 // Public
 
-BOOL NativeShutdown::SetShutdownPrivilege(BOOL EnablePrivilege)
+BOOL NativeShutdown::SetShutdownPrivilege(LPCWSTR lpSystemName, BOOL EnablePrivilege)
 {
 
 	HANDLE hToken;
@@ -64,6 +64,7 @@ BOOL NativeShutdown::SetShutdownPrivilege(BOOL EnablePrivilege)
 
 	result = SetPrivilege
 	(
+		lpSystemName,
 		hToken,
 		SE_SHUTDOWN_NAME,
 		EnablePrivilege
@@ -80,9 +81,9 @@ HRESULT NativeShutdown::ShowShutdownDialog()
 	HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
 	if
-		(
+	(
 		(hRes != S_OK) && (hRes != S_FALSE)
-			)
+	)
 		return hRes;
 
 	CComPtr<IShellDispatch> ShellDispatch;
@@ -108,7 +109,11 @@ HRESULT NativeShutdown::ShowShutdownDialog()
 BOOL NativeShutdown::StartShutdown(BOOL bRebootAfterShutdown)
 {
 
-	BOOL result = NativeShutdown::SetShutdownPrivilege(true);
+	BOOL result = NativeShutdown::SetShutdownPrivilege
+	(
+		(LPCWSTR)NULL,
+		true
+	);
 
 	if (!result)
 		return result;
@@ -130,7 +135,11 @@ BOOL NativeShutdown::StartShutdown(BOOL bRebootAfterShutdown)
 BOOL NativeShutdown::StopShutdown()
 {
 
-	BOOL result = NativeShutdown::SetShutdownPrivilege(true);
+	BOOL result = NativeShutdown::SetShutdownPrivilege
+	(
+		(LPCWSTR)NULL,
+		true
+	);
 
 	if (!result)
 		return result;

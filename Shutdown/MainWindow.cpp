@@ -8,15 +8,14 @@
 #include "Resources.h"
 #include "NativeShutdown.h"
 #include "MainWindow.h"
+#include "AddComputersDialog.h"
 
 namespace MainWindow
 {
 
 	// Private
 
-	BOOL bHasShutdownPrivilege = FALSE;
 	HINSTANCE hMainInstance;
-	HWND hMainWindow;
 	HWND hActionsComboBox;
 	HWND hExecActionButton;
 	HWND hComputersEdit;
@@ -33,23 +32,10 @@ namespace MainWindow
 
 	// Public
 
-	void MainWindow::Initialize(HINSTANCE hInstance)
+	BOOL MainWindow::RegisterMainWindowClass(HINSTANCE hInstance)
 	{
+
 		MainWindow::hMainInstance = hInstance;
-	}
-
-	BOOL MainWindow::HasShutdownPrivileg()
-	{
-		return MainWindow::bHasShutdownPrivilege;
-	}
-
-	HWND MainWindow::GetMainWindowHandle()
-	{
-		return MainWindow::hMainWindow;
-	}
-
-	BOOL MainWindow::RegisterMainWindowClass()
-	{
 
 		WNDCLASSEX wcex = { 0 };
 
@@ -135,37 +121,31 @@ namespace MainWindow
 
 		}
 
-		MainWindow::hMainWindow = CreateWindowEx
+		if
 		(
-			(DWORD)NULL,
-			STR_APP_CLASS,
-			STR_APP_TITLE,
-			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			326,
-			498,
-			(HWND)NULL,
-			hMainMenu,
-			MainWindow::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		if (!MainWindow::hMainWindow)
+			!CreateWindowEx
+			(
+				(DWORD)NULL,
+				STR_APP_CLASS,
+				STR_APP_TITLE,
+				WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				326,
+				498,
+				(HWND)NULL,
+				hMainMenu,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			)
+		)
 		{
 			DestroyMenu(hMainMenu);
 			return FALSE;
 		}
 
-		bHasShutdownPrivilege = NativeShutdown::SetShutdownPrivilege(true);
-
 		return TRUE;
 
-	}
-
-	BOOL MainWindow::ShowMainWindow()
-	{
-		return ShowWindow(MainWindow::hMainWindow, SW_SHOW);
 	}
 
 	// Private
@@ -507,18 +487,18 @@ namespace MainWindow
 
 					case ID_ACTION_SHUTDOWN: case ID_ACTION_REBOOT:
 
-						EnableWindow(MainWindow::hExecActionButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hAddComputersButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hRemoveComputersButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hTimerEdit, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hDefTimerButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hForceCheckBox, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hPlannedCheckBox, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hMessageEdit, MainWindow::bHasShutdownPrivilege);
+						EnableWindow(MainWindow::hExecActionButton, TRUE);
+						EnableWindow(MainWindow::hAddComputersButton, TRUE);
+						EnableWindow(MainWindow::hRemoveComputersButton, TRUE);
+						EnableWindow(MainWindow::hTimerEdit, TRUE);
+						EnableWindow(MainWindow::hDefTimerButton, TRUE);
+						EnableWindow(MainWindow::hForceCheckBox, TRUE);
+						EnableWindow(MainWindow::hPlannedCheckBox, TRUE);
+						EnableWindow(MainWindow::hMessageEdit, TRUE);
 
 					break;
 
-					case ID_ACTION_LOCK: case ID_ACTION_LOGOFF:
+					case ID_ACTION_LOGOFF: case ID_ACTION_LOCK:
 
 						EnableWindow(MainWindow::hExecActionButton, TRUE);
 						EnableWindow(MainWindow::hAddComputersButton, FALSE);
@@ -533,9 +513,9 @@ namespace MainWindow
 
 					case ID_ACTION_CANCEL:
 
-						EnableWindow(MainWindow::hExecActionButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hAddComputersButton, MainWindow::bHasShutdownPrivilege);
-						EnableWindow(MainWindow::hRemoveComputersButton, MainWindow::bHasShutdownPrivilege);
+						EnableWindow(MainWindow::hExecActionButton, TRUE);
+						EnableWindow(MainWindow::hAddComputersButton, TRUE);
+						EnableWindow(MainWindow::hRemoveComputersButton, TRUE);
 						EnableWindow(MainWindow::hTimerEdit, FALSE);
 						EnableWindow(MainWindow::hDefTimerButton, FALSE);
 						EnableWindow(MainWindow::hForceCheckBox, FALSE);
@@ -564,6 +544,26 @@ namespace MainWindow
 
 					case ID_ACTION_SHUTDOWN:
 
+						if
+						(
+							!NativeShutdown::SetShutdownPrivilege
+							(
+								(LPCWSTR)NULL,
+								true
+							)
+						)
+							TaskDialog
+							(
+								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
+								L"Failed to get shutdown privilege for current process",
+								L"Possibly this privilege has restricted by administrator",
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
+							);
+
 						if (!MainWindow::StartShutdown(FALSE))
 							TaskDialog
 							(
@@ -580,6 +580,26 @@ namespace MainWindow
 					break;
 
 					case ID_ACTION_REBOOT:
+
+						if
+						(
+							!NativeShutdown::SetShutdownPrivilege
+							(
+								(LPCWSTR)NULL,
+								true
+							)
+						)
+							TaskDialog
+							(
+								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
+								L"Failed to get shutdown privilege for current process",
+								L"Possibly this privilege has restricted by administrator",
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
+							);
 
 						if (!MainWindow::StartShutdown(TRUE))
 							TaskDialog
@@ -646,6 +666,26 @@ namespace MainWindow
 					case ID_ACTION_CANCEL:
 					{
 
+						if
+						(
+							!NativeShutdown::SetShutdownPrivilege
+							(
+								(LPCWSTR)NULL,
+								true
+							)
+						)
+							TaskDialog
+							(
+								hWnd,
+								MainWindow::hMainInstance,
+								L"Error",
+								L"Failed to get shutdown privilege for current process",
+								L"Possibly this privilege has restricted by administrator",
+								TDCBF_OK_BUTTON,
+								TD_ERROR_ICON,
+								(int*)NULL
+							);
+
 						BOOL result = AbortSystemShutdown
 						(
 							(LPWSTR)NULL
@@ -672,19 +712,11 @@ namespace MainWindow
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
-
-					TaskDialog
+					AddComputersDialog::CreateDialogWindow
 					(
-						hWnd,
 						MainWindow::hMainInstance,
-						STR_ABOUT_POPUP_ITEM,
-						L"qwerty",
-						STR_APP_DESCRIPTION,
-						TDCBF_OK_BUTTON,
-						TD_INFORMATION_ICON,
-						(int*)NULL
+						hWnd
 					);
-
 				break;
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:

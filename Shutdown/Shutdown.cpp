@@ -55,9 +55,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//
 
-	MainWindow::Initialize(hInstance);
-
-	if (!MainWindow::RegisterMainWindowClass())
+	if (!MainWindow::RegisterMainWindowClass(hInstance))
 	{
 		TaskDialog
 		(
@@ -88,21 +86,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		);
 		return -1;
 	}
-
-	MainWindow::ShowMainWindow();
-
-	if (!MainWindow::HasShutdownPrivileg())
-		TaskDialog
-		(
-			MainWindow::GetMainWindowHandle(),
-			hInstance,
-			L"Error",
-			L"Failed to get shutdown privilege for current process",
-			L"Possibly this privilege has restricted by administrator",
-			TDCBF_OK_BUTTON,
-			TD_ERROR_ICON,
-			(int*)NULL
-		);
 
 	//
 
