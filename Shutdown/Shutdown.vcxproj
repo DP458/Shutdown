@@ -147,6 +147,7 @@
     <ClCompile Include="AddComputersDialog.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NativeShutdown.cpp" />
+    <ClCompile Include="RemoveComputersDialog.cpp" />
     <ClCompile Include="Shutdown.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +164,7 @@
     <ClInclude Include="AddComputersDialog.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NativeShutdown.h" />
+    <ClInclude Include="RemoveComputersDialog.h" />
     <ClInclude Include="Resources.h" />
   </ItemGroup>
   <ItemGroup>

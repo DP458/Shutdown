@@ -13,10 +13,9 @@ namespace AddComputersDialog
 
 	// Private
 
+	BOOL bIsClassRegistered = FALSE;
 	HINSTANCE hMainInstance;
-	ATOM hDialogWindowClass;
 	HWND hOwnerWindow;
-	HWND hDialogWindow;
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -28,7 +27,8 @@ namespace AddComputersDialog
 		AddComputersDialog::hMainInstance = hInstance;
 		AddComputersDialog::hOwnerWindow = owner;
 
-		/*{
+		if(!bIsClassRegistered)
+		{
 
 			WNDCLASSEX wcex = { 0 };
 
@@ -46,14 +46,16 @@ namespace AddComputersDialog
 			wcex.lpszClassName = L"#32770";
 			wcex.hIconSm = LoadIcon(AddComputersDialog::hMainInstance, MAKEINTRESOURCE(IDI_ICON1));
 
-			AddComputersDialog::hDialogWindowClass = RegisterClassEx(&wcex);
+			ATOM hDialogWindowClass = RegisterClassEx(&wcex);
 
-			if (!AddComputersDialog::hDialogWindowClass)
+			AddComputersDialog::bIsClassRegistered = (bool)hDialogWindowClass;
+
+			if (!AddComputersDialog::bIsClassRegistered)
 				return FALSE;
 
-		}*/
+		}
 
-		AddComputersDialog::hDialogWindow = CreateWindowEx
+		HWND hDialogWindow = CreateWindowEx
 		(
 			(DWORD)NULL,
 			L"#32770",
@@ -69,7 +71,7 @@ namespace AddComputersDialog
 			(LPVOID)NULL
 		);
 
-		if (AddComputersDialog::hDialogWindow)
+		if (hDialogWindow)
 			EnableWindow(AddComputersDialog::hOwnerWindow, FALSE);
 		else return FALSE;
 
@@ -87,11 +89,8 @@ namespace AddComputersDialog
 
 		case WM_DESTROY:
 			EnableWindow(AddComputersDialog::hOwnerWindow, TRUE);
+			SetActiveWindow(AddComputersDialog::hOwnerWindow);
 		break;
-
-		/*case WM_NCDESTROY:
-			UnregisterClass(L"sdjidsf", AddComputersDialog::hMainInstance);
-		break;*/
 
 		case WM_CTLCOLORSTATIC:
 		return (LRESULT)(COLOR_WINDOW + 1);

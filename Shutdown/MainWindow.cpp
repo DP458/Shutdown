@@ -9,6 +9,7 @@
 #include "NativeShutdown.h"
 #include "MainWindow.h"
 #include "AddComputersDialog.h"
+#include "RemoveComputersDialog.h"
 
 namespace MainWindow
 {
@@ -712,27 +713,47 @@ namespace MainWindow
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
-					AddComputersDialog::CreateDialogWindow
+					if
 					(
-						MainWindow::hMainInstance,
-						hWnd
-					);
+						!AddComputersDialog::CreateDialogWindow
+						(
+							MainWindow::hMainInstance,
+							hWnd
+						)
+					)
+						TaskDialog
+						(
+							hWnd,
+							MainWindow::hMainInstance,
+							L"Error",
+							L"asdfgh",
+							STR_APP_DESCRIPTION,
+							TDCBF_OK_BUTTON,
+							TD_ERROR_ICON,
+							(int*)NULL
+						);
 				break;
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:
-
-					TaskDialog
+					if
 					(
-						hWnd,
-						MainWindow::hMainInstance,
-						STR_ABOUT_POPUP_ITEM,
-						L"asdfgh",
-						STR_APP_DESCRIPTION,
-						TDCBF_OK_BUTTON,
-						TD_INFORMATION_ICON,
-						(int*)NULL
-					);
-
+						!RemoveComputersDialog::CreateDialogWindow
+						(
+							MainWindow::hMainInstance,
+							hWnd
+						)
+					)
+						TaskDialog
+						(
+							hWnd,
+							MainWindow::hMainInstance,
+							L"Error",
+							L"asdfgh",
+							STR_APP_DESCRIPTION,
+							TDCBF_OK_BUTTON,
+							TD_ERROR_ICON,
+							(int*)NULL
+						);
 				break;
 
 				case IDS_TIMER_DEF_BUTTON_TITLE:
