@@ -126,6 +126,7 @@ namespace AddComputersDialog
 				(LPVOID)NULL
 			);
 
+			Edit_LimitText(AddComputersDialog::hHostNameEdit, 30);
 			SetFocus(hHostNameEdit);
 
 
@@ -201,8 +202,13 @@ namespace AddComputersDialog
 
 					GetWindowText(AddComputersDialog::hHostNameEdit, host_name, text_length + 1);
 
-					HWND list_box = MainWindow::GetHostListBoxHandle();
-					SendMessage(list_box, LB_ADDSTRING, NULL, (LPARAM)host_name);
+					SendMessage
+					(
+						MainWindow::GetHostListBoxHandle(),
+						LB_ADDSTRING,
+						(WPARAM)NULL,
+						(LPARAM)host_name
+					);
 
 					delete[] host_name;
 
