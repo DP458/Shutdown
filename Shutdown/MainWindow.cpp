@@ -9,7 +9,6 @@
 #include "NativeShutdown.h"
 #include "MainWindow.h"
 #include "AddComputersDialog.h"
-#include "RemoveComputersDialog.h"
 
 namespace MainWindow
 {
@@ -19,9 +18,10 @@ namespace MainWindow
 	HINSTANCE hMainInstance;
 	HWND hActionsComboBox;
 	HWND hExecActionButton;
-	HWND hComputersEdit;
+	HWND hComputersListBox;
 	HWND hAddComputersButton;
 	HWND hRemoveComputersButton;
+	HWND hClearComputersButton;
 	HWND hTimerEdit;
 	HWND hDefTimerButton;
 	HWND hForceCheckBox;
@@ -43,7 +43,7 @@ namespace MainWindow
 		wcex.cbSize = sizeof(WNDCLASSEX);
 
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
-		wcex.lpfnWndProc = WndProc;
+		wcex.lpfnWndProc = MainWindow::WndProc;
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = 0;
 		wcex.hInstance = MainWindow::hMainInstance;
@@ -133,7 +133,7 @@ namespace MainWindow
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				326,
-				498,
+				523,
 				(HWND)NULL,
 				hMainMenu,
 				MainWindow::hMainInstance,
@@ -147,6 +147,11 @@ namespace MainWindow
 
 		return TRUE;
 
+	}
+
+	HWND MainWindow::GetHostListBoxHandle()
+	{
+		return MainWindow::hComputersListBox;
 	}
 
 	// Private
@@ -283,16 +288,16 @@ namespace MainWindow
 				(LPVOID)NULL
 			);
 
-			MainWindow::hComputersEdit = CreateWindowEx
+			MainWindow::hComputersListBox = CreateWindowEx
 			(
 				WS_EX_CLIENTEDGE,
-				WC_EDIT,
+				WC_LISTBOX,
 				STR_COMPUTERS_EDIT_TITLE,
-				WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_READONLY | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
+				WS_VISIBLE | WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_DISABLED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY,
 				10,
 				85,
 				200,
-				75,
+				100,
 				hWnd,
 				(HMENU)IDS_COMPUTERS_EDIT_TITLE,
 				MainWindow::hMainInstance,
@@ -331,6 +336,22 @@ namespace MainWindow
 				(LPVOID)NULL
 			);
 
+			MainWindow::hClearComputersButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				STR_CLEARCOMPUTERS_BUTTON_TITLE,
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				220,
+				155,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_CLEARCOMPUTERS_BUTTON_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
 			CreateWindowEx
 			(
 				(DWORD)NULL,
@@ -338,7 +359,7 @@ namespace MainWindow
 				STR_TIMER_STATIC_TITLE,
 				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
 				10,
-				170,
+				195,
 				180,
 				20,
 				hWnd,
@@ -354,7 +375,7 @@ namespace MainWindow
 				STR_TIMER_EDIT_TITLE,
 				WS_VISIBLE | WS_CHILD | WS_DISABLED | ES_LEFT | ES_NUMBER | ES_NOHIDESEL,
 				10,
-				195,
+				220,
 				40,
 				20,
 				hWnd,
@@ -372,7 +393,7 @@ namespace MainWindow
 				STR_TIMER_DEF_BUTTON_TITLE,
 				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
 				60,
-				190,
+				215,
 				80,
 				30,
 				hWnd,
@@ -388,7 +409,7 @@ namespace MainWindow
 				STR_FORCE_CHECKBOX_TITLE,
 				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
 				10,
-				230,
+				255,
 				160,
 				20,
 				hWnd,
@@ -404,7 +425,7 @@ namespace MainWindow
 				STR_PLANNED_CHECKBOX_TITLE,
 				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_AUTOCHECKBOX,
 				175,
-				230,
+				255,
 				160,
 				20,
 				hWnd,
@@ -422,7 +443,7 @@ namespace MainWindow
 				STR_MESSAGE_STATIC_TITLE,
 				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
 				10,
-				260,
+				285,
 				180,
 				20,
 				hWnd,
@@ -438,7 +459,7 @@ namespace MainWindow
 				STR_MESSAGE_EDIT_TITLE,
 				WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_DISABLED | ES_LEFT | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_NOHIDESEL,
 				10,
-				280,
+				305,
 				290,
 				150,
 				hWnd,
@@ -462,9 +483,7 @@ namespace MainWindow
 
 			if
 			(
-				(hWnd == MainWindow::hComputersEdit)
-				||(hWnd == MainWindow::hTimerEdit)
-				||(hWnd == MainWindow::hMessageEdit)
+				(hWnd == MainWindow::hTimerEdit) || (hWnd == MainWindow::hMessageEdit)
 			)
 				break;
 		}
@@ -489,8 +508,11 @@ namespace MainWindow
 					case ID_ACTION_SHUTDOWN: case ID_ACTION_REBOOT:
 
 						EnableWindow(MainWindow::hExecActionButton, TRUE);
+						SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
+						EnableWindow(MainWindow::hComputersListBox, TRUE);
 						EnableWindow(MainWindow::hAddComputersButton, TRUE);
 						EnableWindow(MainWindow::hRemoveComputersButton, TRUE);
+						EnableWindow(MainWindow::hClearComputersButton, TRUE);
 						EnableWindow(MainWindow::hTimerEdit, TRUE);
 						EnableWindow(MainWindow::hDefTimerButton, TRUE);
 						EnableWindow(MainWindow::hForceCheckBox, TRUE);
@@ -502,8 +524,11 @@ namespace MainWindow
 					case ID_ACTION_LOGOFF: case ID_ACTION_LOCK:
 
 						EnableWindow(MainWindow::hExecActionButton, TRUE);
+						SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
+						EnableWindow(MainWindow::hComputersListBox, FALSE);
 						EnableWindow(MainWindow::hAddComputersButton, FALSE);
 						EnableWindow(MainWindow::hRemoveComputersButton, FALSE);
+						EnableWindow(MainWindow::hClearComputersButton, FALSE);
 						EnableWindow(MainWindow::hTimerEdit, FALSE);
 						EnableWindow(MainWindow::hDefTimerButton, FALSE);
 						EnableWindow(MainWindow::hForceCheckBox, FALSE);
@@ -515,8 +540,11 @@ namespace MainWindow
 					case ID_ACTION_CANCEL:
 
 						EnableWindow(MainWindow::hExecActionButton, TRUE);
+						SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
+						EnableWindow(MainWindow::hComputersListBox, TRUE);
 						EnableWindow(MainWindow::hAddComputersButton, TRUE);
 						EnableWindow(MainWindow::hRemoveComputersButton, TRUE);
+						EnableWindow(MainWindow::hClearComputersButton, TRUE);
 						EnableWindow(MainWindow::hTimerEdit, FALSE);
 						EnableWindow(MainWindow::hDefTimerButton, FALSE);
 						EnableWindow(MainWindow::hForceCheckBox, FALSE);
@@ -713,47 +741,53 @@ namespace MainWindow
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
-					if
-					(
-						!AddComputersDialog::CreateDialogWindow
-						(
-							MainWindow::hMainInstance,
-							hWnd
-						)
-					)
-						TaskDialog
-						(
-							hWnd,
-							MainWindow::hMainInstance,
-							L"Error",
-							L"asdfgh",
-							STR_APP_DESCRIPTION,
-							TDCBF_OK_BUTTON,
-							TD_ERROR_ICON,
-							(int*)NULL
-						);
+					AddComputersDialog::CreateDialogWindow(MainWindow::hMainInstance, hWnd);
 				break;
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:
-					if
+
+				{
+
+					int index = (int)SendMessage(MainWindow::hComputersListBox, LB_GETCURSEL, NULL, NULL);
+
+					if (index != LB_ERR)
+						SendMessage(MainWindow::hComputersListBox, LB_DELETESTRING, (WPARAM)index, NULL);
+
+				}
+
+				break;
+
+				case IDS_CLEARCOMPUTERS_BUTTON_TITLE:
+
+				if
+				(
+					SendMessage(MainWindow::hComputersListBox, LB_GETCOUNT,NULL, NULL) > 0
+				)
+				{
+
+					int result = 0;
+
+					TaskDialog
 					(
-						!RemoveComputersDialog::CreateDialogWindow
-						(
-							MainWindow::hMainInstance,
-							hWnd
-						)
-					)
-						TaskDialog
-						(
-							hWnd,
-							MainWindow::hMainInstance,
-							L"Error",
-							L"asdfgh",
-							STR_APP_DESCRIPTION,
-							TDCBF_OK_BUTTON,
-							TD_ERROR_ICON,
-							(int*)NULL
-						);
+						hWnd,
+						MainWindow::hMainInstance,
+						L"Clear list of computer names",
+						L"Are you sure you want to clear all computer names from list?",
+						(PCWSTR)NULL,
+						TDCBF_YES_BUTTON | TDCBF_NO_BUTTON,
+						TD_WARNING_ICON,
+						&result
+					);
+
+					if (result != IDYES)
+						break;
+
+					SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
+					SendMessage(MainWindow::hComputersListBox, LB_RESETCONTENT, NULL, NULL);
+					EnableWindow(MainWindow::hRemoveComputersButton, FALSE);
+
+				}
+
 				break;
 
 				case IDS_TIMER_DEF_BUTTON_TITLE:
@@ -802,23 +836,7 @@ namespace MainWindow
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
 
 				if (NativeShutdown::ShowShutdownDialog() != S_OK)
-				{
-
-					TaskDialog
-					(
-						hWnd,
-						MainWindow::hMainInstance,
-						L"Error",
-						L"Failed to show system shutdown dialog",
-						(PCWSTR)NULL,
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-
 					break;
-
-				}
 
 				PostMessage
 				(

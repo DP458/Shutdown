@@ -7,6 +7,7 @@
 #include <CommCtrl.h>
 #include "Resources.h"
 #include "AddComputersDialog.h"
+#include "MainWindow.h"
 
 namespace AddComputersDialog
 {
@@ -15,7 +16,10 @@ namespace AddComputersDialog
 
 	BOOL bIsClassRegistered = FALSE;
 	HINSTANCE hMainInstance;
+	WNDPROC PrevWndProc;
 	HWND hOwnerWindow;
+	HWND hHostNameEdit;
+	HWND hAddButton;
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -39,43 +43,43 @@ namespace AddComputersDialog
 			wcex.cbClsExtra = 0;
 			wcex.cbWndExtra = DLGWINDOWEXTRA;
 			wcex.hInstance = AddComputersDialog::hMainInstance;
-			wcex.hIcon = LoadIcon(AddComputersDialog::hMainInstance, MAKEINTRESOURCE(IDI_ICON1));
+			wcex.hIcon = (HICON)NULL;
 			wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
-			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
 			wcex.lpszMenuName = NULL;
 			wcex.lpszClassName = L"#32770";
-			wcex.hIconSm = LoadIcon(AddComputersDialog::hMainInstance, MAKEINTRESOURCE(IDI_ICON1));
+			wcex.hIconSm = (HICON)NULL;
 
-			ATOM hDialogWindowClass = RegisterClassEx(&wcex);
-
-			AddComputersDialog::bIsClassRegistered = (bool)hDialogWindowClass;
+			AddComputersDialog::bIsClassRegistered = RegisterClassEx(&wcex);
 
 			if (!AddComputersDialog::bIsClassRegistered)
 				return FALSE;
 
 		}
 
-		HWND hDialogWindow = CreateWindowEx
+		if
 		(
-			(DWORD)NULL,
-			L"#32770",
-			STR_APP_TITLE,
-			DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			326,
-			498,
-			AddComputersDialog::hOwnerWindow,
-			(HMENU)NULL,
-			AddComputersDialog::hMainInstance,
-			(LPVOID)NULL
-		);
-
-		if (hDialogWindow)
+			CreateWindowEx
+			(
+				WS_EX_DLGMODALFRAME,
+				L"#32770",
+				L"Add computers",
+				WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				285,
+				158,
+				AddComputersDialog::hOwnerWindow,
+				(HMENU)NULL,
+				AddComputersDialog::hMainInstance,
+				(LPVOID)NULL
+			)
+		)
+		{
 			EnableWindow(AddComputersDialog::hOwnerWindow, FALSE);
+			return TRUE;
+		}
 		else return FALSE;
-
-		return TRUE;
 
 	}
 
@@ -87,15 +91,139 @@ namespace AddComputersDialog
 		switch (message)
 		{
 
+		case WM_CREATE:
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_STATIC,
+				L"Enter computer name",
+				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+				10,
+				5,
+				180,
+				20,
+				hWnd,
+				(HMENU)IDS_ACTION_STATIC_TITLE,
+				AddComputersDialog::hMainInstance,
+				(LPVOID)NULL
+			);
+
+
+			AddComputersDialog::hHostNameEdit = CreateWindowEx
+			(
+				WS_EX_CLIENTEDGE,
+				WC_EDIT,
+				STR_MESSAGE_EDIT_TITLE,
+				WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | ES_NOHIDESEL,
+				10,
+				28,
+				250,
+				40,
+				hWnd,
+				(HMENU)IDS_MESSAGE_EDIT_TITLE,
+				AddComputersDialog::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			SetFocus(hHostNameEdit);
+
+
+			AddComputersDialog::hAddButton = CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				L"Add",
+				WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				86,
+				78,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_EXECACTION_BUTTON_TITLE,
+				AddComputersDialog::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			CreateWindowEx
+			(
+				(DWORD)NULL,
+				WC_BUTTON,
+				L"Cancel",
+				WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+				176,
+				78,
+				80,
+				30,
+				hWnd,
+				(HMENU)IDS_EXECACTION_BUTTON_TITLE,
+				AddComputersDialog::hMainInstance,
+				(LPVOID)NULL
+			);
+
+		break;
+
 		case WM_DESTROY:
 			EnableWindow(AddComputersDialog::hOwnerWindow, TRUE);
 			SetActiveWindow(AddComputersDialog::hOwnerWindow);
 		break;
 
-		case WM_CTLCOLORSTATIC:
-		return (LRESULT)(COLOR_WINDOW + 1);
-
 		case WM_COMMAND:
+
+			switch (HIWORD(wParam))
+			{
+
+			case EN_CHANGE:
+
+				switch (LOWORD(wParam))
+				{
+					
+				case IDS_MESSAGE_EDIT_TITLE:
+					EnableWindow(AddComputersDialog::hAddButton, GetWindowTextLength((HWND)lParam));
+				break;
+
+				}
+
+			break;
+
+			case BN_CLICKED:
+
+				switch (LOWORD(wParam))
+				{
+
+				case IDS_EXECACTION_BUTTON_TITLE:
+
+				{
+
+					const int text_length = GetWindowTextLength(AddComputersDialog::hHostNameEdit);
+
+					wchar_t* host_name = new wchar_t[text_length + 1];
+
+					GetWindowText(AddComputersDialog::hHostNameEdit, host_name, text_length + 1);
+
+					HWND list_box = MainWindow::GetHostListBoxHandle();
+					SendMessage(list_box, LB_ADDSTRING, NULL, (LPARAM)host_name);
+
+					delete[] host_name;
+
+				}
+
+				PostMessage
+				(
+					hWnd,
+					WM_CLOSE,
+					(WPARAM)NULL,
+					(LPARAM)NULL
+				);
+
+				break;
+
+				}
+
+			break;
+
+			}
+
 		break;
 
 		}

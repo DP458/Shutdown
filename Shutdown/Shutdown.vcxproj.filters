@@ -13,9 +13,6 @@
     <Filter Include="AddComputersDialog">
       <UniqueIdentifier>{3dc020e8-3044-470c-ba8a-fa5a6724cdef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RemoveComputersDialog">
-      <UniqueIdentifier>{762a8c69-3959-401f-9ce8-9c3b5cd51bd4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shutdown.cpp" />
@@ -27,9 +24,6 @@
     </ClCompile>
     <ClCompile Include="AddComputersDialog.cpp">
       <Filter>AddComputersDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="RemoveComputersDialog.cpp">
-      <Filter>RemoveComputersDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="AddComputersDialog.h">
       <Filter>AddComputersDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="RemoveComputersDialog.h">
-      <Filter>RemoveComputersDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
