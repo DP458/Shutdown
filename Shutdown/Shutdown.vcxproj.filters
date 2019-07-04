@@ -13,6 +13,9 @@
     <Filter Include="AddComputersDialog">
       <UniqueIdentifier>{3dc020e8-3044-470c-ba8a-fa5a6724cdef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="stdafx">
+      <UniqueIdentifier>{c7072088-9545-45b0-86b2-f8daccc3980f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shutdown.cpp" />
@@ -21,6 +24,13 @@
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <Filter>MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutDialog.cpp" />
+    <ClCompile Include="AddComputersDialogInternals.cpp">
+      <Filter>AddComputersDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>stdafx</Filter>
     </ClCompile>
     <ClCompile Include="AddComputersDialog.cpp">
       <Filter>AddComputersDialog</Filter>
@@ -55,6 +65,13 @@
       <Filter>MainWindow</Filter>
     </ClInclude>
     <ClInclude Include="AddComputersDialog.h">
+      <Filter>AddComputersDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutDialog.h" />
+    <ClInclude Include="stdafx.h">
+      <Filter>stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="AddComputersDialogInternals.h">
       <Filter>AddComputersDialog</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,37 +2,23 @@
 
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include <windows.h>
-#include <windowsx.h>
-#include <CommCtrl.h>
-#include <memory>
+#include "stdafx.h"
 #include "Resources.h"
 #include "AddComputersDialog.h"
-#include "MainWindow.h"
+#include "AddComputersDialogInternals.h"
 
 namespace AddComputersDialog
 {
 
-	// Private
-
-	BOOL bIsClassRegistered = FALSE;
-	HINSTANCE hMainInstance;
-	HWND hOwnerWindow;
-	HWND hComputerNameEdit;
-	HWND hAddButton;
-	HWND hCancelButton;
-
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-	// Public
+	AddComputersDialogInternals::__AddComputersDialog* DlgInternalObj = AddComputersDialogInternals::__AddComputersDialog::GetObjectRef();
 
 	BOOL AddComputersDialog::CreateDialogWindow(HINSTANCE hInstance, HWND owner)
 	{
 		
-		AddComputersDialog::hMainInstance = hInstance;
-		AddComputersDialog::hOwnerWindow = owner;
+		DlgInternalObj->hMainInstance = hInstance;
+		DlgInternalObj->hOwnerWindow = owner;
 
-		if(!bIsClassRegistered)
+		if(!DlgInternalObj->bIsClassRegistered)
 		{
 
 			WNDCLASSEX wcex = { 0 };
@@ -40,10 +26,10 @@ namespace AddComputersDialog
 			wcex.cbSize = sizeof(WNDCLASSEX);
 
 			wcex.style = CS_HREDRAW | CS_VREDRAW;
-			wcex.lpfnWndProc = WndProc;
+			wcex.lpfnWndProc = AddComputersDialogInternals::WndProc;
 			wcex.cbClsExtra = 0;
 			wcex.cbWndExtra = DLGWINDOWEXTRA;
-			wcex.hInstance = AddComputersDialog::hMainInstance;
+			wcex.hInstance = DlgInternalObj->hMainInstance;
 			wcex.hIcon = (HICON)NULL;
 			wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
 			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
@@ -51,9 +37,9 @@ namespace AddComputersDialog
 			wcex.lpszClassName = STR_ADDCOMPUTERS_DIALOG_CLASS;
 			wcex.hIconSm = (HICON)NULL;
 
-			AddComputersDialog::bIsClassRegistered = RegisterClassEx(&wcex);
+			DlgInternalObj->bIsClassRegistered = RegisterClassEx(&wcex);
 
-			if (!AddComputersDialog::bIsClassRegistered)
+			if (!DlgInternalObj->bIsClassRegistered)
 				return FALSE;
 
 		}
@@ -70,172 +56,17 @@ namespace AddComputersDialog
 				CW_USEDEFAULT,
 				285,
 				158,
-				AddComputersDialog::hOwnerWindow,
+				DlgInternalObj->hOwnerWindow,
 				(HMENU)NULL,
-				AddComputersDialog::hMainInstance,
+				DlgInternalObj->hMainInstance,
 				(LPVOID)NULL
 			)
 		)
 		{
-			EnableWindow(AddComputersDialog::hOwnerWindow, FALSE);
+			EnableWindow(DlgInternalObj->hOwnerWindow, FALSE);
 			return TRUE;
 		}
 		else return FALSE;
-
-	}
-
-	// Private
-
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-	{
-
-		switch (message)
-		{
-
-		case WM_CREATE:
-
-			CreateWindowEx
-			(
-				(DWORD)NULL,
-				WC_STATIC,
-				STR_ADDCOMPUTERS_COMPUTERNAME_STATIC,
-				WS_VISIBLE | WS_CHILD | SS_SIMPLE,
-				10,
-				5,
-				180,
-				20,
-				hWnd,
-				(HMENU)IDS_ADDCOMPUTERS_COMPUTERNAME_STATIC,
-				AddComputersDialog::hMainInstance,
-				(LPVOID)NULL
-			);
-
-
-			AddComputersDialog::hComputerNameEdit = CreateWindowEx
-			(
-				WS_EX_CLIENTEDGE,
-				WC_EDIT,
-				STR_ADDCOMPUTERS_COMPUTERNAME_EDIT,
-				WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | ES_NOHIDESEL,
-				10,
-				28,
-				250,
-				40,
-				hWnd,
-				(HMENU)IDS_ADDCOMPUTERS_COMPUTERNAME_EDIT,
-				AddComputersDialog::hMainInstance,
-				(LPVOID)NULL
-			);
-
-			Edit_LimitText(AddComputersDialog::hComputerNameEdit, 30);
-			SetFocus(hComputerNameEdit);
-
-
-			AddComputersDialog::hAddButton = CreateWindowEx
-			(
-				(DWORD)NULL,
-				WC_BUTTON,
-				STR_ADDCOMPUTERS_ADD_BUTTON,
-				WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-				86,
-				78,
-				80,
-				30,
-				hWnd,
-				(HMENU)IDS_ADDCOMPUTERS_ADD_BUTTON,
-				AddComputersDialog::hMainInstance,
-				(LPVOID)NULL
-			);
-
-			AddComputersDialog::hCancelButton = CreateWindowEx
-			(
-				(DWORD)NULL,
-				WC_BUTTON,
-				STR_ADDCOMPUTERS_CANCEL_BUTTON,
-				WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
-				176,
-				78,
-				80,
-				30,
-				hWnd,
-				(HMENU)IDS_ADDCOMPUTERS_CANCEL_BUTTON,
-				AddComputersDialog::hMainInstance,
-				(LPVOID)NULL
-			);
-
-		break;
-
-		case WM_DESTROY:
-			EnableWindow(AddComputersDialog::hOwnerWindow, TRUE);
-			SetActiveWindow(AddComputersDialog::hOwnerWindow);
-		break;
-
-		case WM_COMMAND:
-
-			switch (HIWORD(wParam))
-			{
-
-			case BN_CLICKED:
-
-				switch (LOWORD(wParam))
-				{
-
-				case IDS_ADDCOMPUTERS_ADD_BUTTON:
-
-				{
-
-					const int text_length = GetWindowTextLength(AddComputersDialog::hComputerNameEdit);
-
-					if (text_length <= 0)
-						break;
-
-					wchar_t* computer_name = new wchar_t[text_length + 1];
-
-					GetWindowText(AddComputersDialog::hComputerNameEdit, computer_name, text_length + 1);
-
-					SendMessage
-					(
-						MainWindow::GetHostListBoxHandle(),
-						LB_ADDSTRING,
-						(WPARAM)NULL,
-						(LPARAM)computer_name
-					);
-
-					delete[] computer_name;
-
-				}
-				
-					PostMessage
-					(
-						hWnd,
-						WM_CLOSE,
-						(WPARAM)NULL,
-						(LPARAM)NULL
-					);
-
-				return 0;
-
-				case IDS_ADDCOMPUTERS_CANCEL_BUTTON:
-					PostMessage
-					(
-						hWnd,
-						WM_CLOSE,
-						(WPARAM)NULL,
-						(LPARAM)NULL
-					);
-				return 0;
-
-				}
-
-			break;
-
-			}
-
-		break;
-
-		}
-
-		return DefWindowProc(hWnd, message, wParam, lParam);
 
 	}
 

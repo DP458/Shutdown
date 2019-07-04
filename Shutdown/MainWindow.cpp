@@ -2,9 +2,7 @@
 
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include <windows.h>
-#include <windowsx.h>
-#include <CommCtrl.h>
+#include "stdafx.h"
 #include "Resources.h"
 #include "NativeShutdown.h"
 #include "MainWindow.h"
