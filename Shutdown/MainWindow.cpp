@@ -788,7 +788,6 @@ namespace MainWindow
 
 					SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
 					SendMessage(MainWindow::hComputersListBox, LB_RESETCONTENT, NULL, NULL);
-					EnableWindow(MainWindow::hRemoveComputersButton, FALSE);
 
 				}
 
