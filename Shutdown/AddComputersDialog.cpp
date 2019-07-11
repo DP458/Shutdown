@@ -4,21 +4,194 @@
 
 #include "stdafx.h"
 #include "Resources.h"
+#include "MainWindow.h"
 #include "AddComputersDialog.h"
-#include "AddComputersDialogInternals.h"
 
-namespace AddComputersDialog
+namespace AddComputersDialogInternals
 {
 
-	AddComputersDialogInternals::__AddComputersDialog* DlgInternalObj = AddComputersDialogInternals::__AddComputersDialog::GetObjectRef();
+	// Private
 
-	BOOL AddComputersDialog::CreateDialogWindow(HINSTANCE hInstance, HWND owner)
+	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) : hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE)
 	{
-		
-		DlgInternalObj->hMainInstance = hInstance;
-		DlgInternalObj->hOwnerWindow = owner;
 
-		if(!DlgInternalObj->bIsClassRegistered)
+	}
+
+	void AddComputersDialogInternals::__AddComputersDialog::InitDialogWindow()
+	{
+
+		CreateWindowEx
+		(
+			(DWORD)NULL,
+			WC_STATIC,
+			STR_ADDCOMPUTERS_COMPUTERNAME_STATIC,
+			WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+			10,
+			5,
+			180,
+			20,
+			this->hDialogWindow,
+			(HMENU)IDS_ADDCOMPUTERS_COMPUTERNAME_STATIC,
+			this->hMainInstance,
+			(LPVOID)NULL
+		);
+
+
+		this->hComputerNameEdit = CreateWindowEx
+		(
+			WS_EX_CLIENTEDGE,
+			WC_EDIT,
+			STR_ADDCOMPUTERS_COMPUTERNAME_EDIT,
+			WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | ES_NOHIDESEL,
+			10,
+			28,
+			250,
+			40,
+			this->hDialogWindow,
+			(HMENU)IDS_ADDCOMPUTERS_COMPUTERNAME_EDIT,
+			this->hMainInstance,
+			(LPVOID)NULL
+		);
+
+		Edit_LimitText(this->hComputerNameEdit, 30);
+		SetFocus(this->hComputerNameEdit);
+
+
+		this->hAddButton = CreateWindowEx
+		(
+			(DWORD)NULL,
+			WC_BUTTON,
+			STR_ADDCOMPUTERS_ADD_BUTTON,
+			WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+			86,
+			78,
+			80,
+			30,
+			this->hDialogWindow,
+			(HMENU)IDS_ADDCOMPUTERS_ADD_BUTTON,
+			this->hMainInstance,
+			(LPVOID)NULL
+		);
+
+		this->hCancelButton = CreateWindowEx
+		(
+			(DWORD)NULL,
+			WC_BUTTON,
+			STR_ADDCOMPUTERS_CANCEL_BUTTON,
+			WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT,
+			176,
+			78,
+			80,
+			30,
+			this->hDialogWindow,
+			(HMENU)IDS_ADDCOMPUTERS_CANCEL_BUTTON,
+			this->hMainInstance,
+			(LPVOID)NULL
+		);
+
+	}
+
+	BOOL AddComputersDialogInternals::__AddComputersDialog::AddComputerName()
+	{
+
+		const int text_length = GetWindowTextLength(this->hComputerNameEdit);
+
+		if (text_length <= 0)
+			return FALSE;
+
+		wchar_t* computer_name = new wchar_t[text_length + 1];
+
+		GetWindowText(this->hComputerNameEdit, computer_name, text_length + 1);
+
+		SendMessage
+		(
+			MainWindow::GetHostListBoxHandle(),
+			LB_ADDSTRING,
+			(WPARAM)NULL,
+			(LPARAM)computer_name
+		);
+
+		delete[] computer_name;
+		return TRUE;
+
+	}
+
+	void AddComputersDialogInternals::__AddComputersDialog::CloseWindow()
+	{
+		PostMessage
+		(
+			this->hDialogWindow,
+			WM_CLOSE,
+			(WPARAM)NULL,
+			(LPARAM)NULL
+		);
+	}
+
+	// Local
+
+	static AddComputersDialogInternals::__AddComputersDialog* pDlgObj = nullptr;
+
+	LRESULT CALLBACK AddComputersDialogInternals::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+
+		switch (message)
+		{
+
+		case WM_DESTROY:
+			EnableWindow(pDlgObj->hOwnerWindow, TRUE);
+			SetActiveWindow(pDlgObj->hOwnerWindow);
+		return 0;
+
+		case WM_COMMAND:
+
+			switch (HIWORD(wParam))
+			{
+
+			case BN_CLICKED:
+
+				switch (LOWORD(wParam))
+				{
+
+				case IDS_ADDCOMPUTERS_ADD_BUTTON:
+
+					if (!pDlgObj->AddComputerName())
+					{
+						SetFocus(pDlgObj->hComputerNameEdit);
+						break;
+					}
+
+					pDlgObj->CloseWindow();
+
+				return 0;
+
+				case IDS_ADDCOMPUTERS_CANCEL_BUTTON:
+					pDlgObj->CloseWindow();
+				return 0;
+
+				}
+
+			break;
+
+			}
+
+		break;
+
+		}
+
+		return DefWindowProc(hWnd, message, wParam, lParam);
+
+	}
+
+	// Public
+
+	BOOL AddComputersDialogInternals::__AddComputersDialog::ShowDialog(HINSTANCE hInstance, HWND hOwnerWnd)
+	{
+
+		static __AddComputersDialog DlgInternalObj(hInstance, hOwnerWnd);
+
+		pDlgObj = &DlgInternalObj;
+
+		if (!DlgInternalObj.bIsClassRegistered)
 		{
 
 			WNDCLASSEX wcex = { 0 };
@@ -29,7 +202,7 @@ namespace AddComputersDialog
 			wcex.lpfnWndProc = AddComputersDialogInternals::WndProc;
 			wcex.cbClsExtra = 0;
 			wcex.cbWndExtra = DLGWINDOWEXTRA;
-			wcex.hInstance = DlgInternalObj->hMainInstance;
+			wcex.hInstance = hInstance;
 			wcex.hIcon = (HICON)NULL;
 			wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
 			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
@@ -37,36 +210,35 @@ namespace AddComputersDialog
 			wcex.lpszClassName = STR_ADDCOMPUTERS_DIALOG_CLASS;
 			wcex.hIconSm = (HICON)NULL;
 
-			DlgInternalObj->bIsClassRegistered = RegisterClassEx(&wcex);
+			DlgInternalObj.bIsClassRegistered = RegisterClassEx(&wcex);
 
-			if (!DlgInternalObj->bIsClassRegistered)
+			if (!DlgInternalObj.bIsClassRegistered)
 				return FALSE;
 
 		}
 
-		if
+		DlgInternalObj.hDialogWindow = CreateWindowEx
 		(
-			CreateWindowEx
-			(
-				WS_EX_DLGMODALFRAME,
-				STR_ADDCOMPUTERS_DIALOG_CLASS,
-				STR_ADDCOMPUTERS_DIALOG_TITLE,
-				WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
-				CW_USEDEFAULT,
-				CW_USEDEFAULT,
-				285,
-				158,
-				DlgInternalObj->hOwnerWindow,
-				(HMENU)NULL,
-				DlgInternalObj->hMainInstance,
-				(LPVOID)NULL
-			)
-		)
-		{
-			EnableWindow(DlgInternalObj->hOwnerWindow, FALSE);
-			return TRUE;
-		}
-		else return FALSE;
+			WS_EX_DLGMODALFRAME,
+			STR_ADDCOMPUTERS_DIALOG_CLASS,
+			STR_ADDCOMPUTERS_DIALOG_TITLE,
+			WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			285,
+			158,
+			hOwnerWnd,
+			(HMENU)NULL,
+			hInstance,
+			(LPVOID)NULL
+		);
+
+		if (!DlgInternalObj.hDialogWindow)
+			return FALSE;
+
+		DlgInternalObj.InitDialogWindow();
+		EnableWindow(hOwnerWnd, FALSE);
+		return TRUE;
 
 	}
 

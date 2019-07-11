@@ -739,7 +739,13 @@ namespace MainWindow
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
-					AddComputersDialog::CreateDialogWindow(MainWindow::hMainInstance, hWnd);
+
+					AddComputersDialogInternals::__AddComputersDialog::ShowDialog
+					(
+						MainWindow::hMainInstance,
+						hWnd
+					);
+
 				break;
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:

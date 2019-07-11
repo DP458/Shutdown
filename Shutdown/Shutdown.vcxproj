@@ -146,7 +146,6 @@
   <ItemGroup>
     <ClCompile Include="AboutDialog.cpp" />
     <ClCompile Include="AddComputersDialog.cpp" />
-    <ClCompile Include="AddComputersDialogInternals.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NativeShutdown.cpp" />
     <ClCompile Include="Shutdown.cpp" />
@@ -165,7 +164,6 @@
   <ItemGroup>
     <ClInclude Include="AboutDialog.h" />
     <ClInclude Include="AddComputersDialog.h" />
-    <ClInclude Include="AddComputersDialogInternals.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="NativeShutdown.h" />
     <ClInclude Include="Resources.h" />
