@@ -15,3 +15,4 @@
 #include <atlbase.h>
 #include <wchar.h>
 #include <memory>
+#include <sstream>

@@ -21,6 +21,7 @@ namespace MainWindow
 	};
 
 	HINSTANCE hMainInstance;
+	HWND hMainWindow;
 	HWND hActionsComboBox;
 	HWND hExecActionButton;
 	HWND hComputersListBox;
@@ -32,9 +33,12 @@ namespace MainWindow
 	HWND hForceCheckBox;
 	HWND hPlannedCheckBox;
 	HWND hMessageEdit;
+	HWND hStatusBar;
 
 	BOOL StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown);
 	void ShutdownComputers(ShutdownActionType type);
+	void AddStatusBarCaption(int count);
+	void CloseWindow();
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	// Public
@@ -73,8 +77,22 @@ namespace MainWindow
 		(
 			hFilePopupMenu,
 			MF_STRING,
+			IDS_NEW_POPUP_ITEM,
+			STR_NEW_POPUP_ITEM
+		);
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_STRING,
 			IDS_OPEN_POPUP_ITEM,
 			STR_OPEN_POPUP_ITEM
+		);
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_STRING,
+			IDS_SAVE_POPUP_ITEM,
+			STR_SAVE_POPUP_ITEM
 		);
 		AppendMenu
 		(
@@ -142,24 +160,23 @@ namespace MainWindow
 
 		}
 
-		if
+		MainWindow::hMainWindow = CreateWindowEx
 		(
-			!CreateWindowEx
-			(
-				(DWORD)NULL,
-				STR_APP_CLASS,
-				STR_APP_TITLE,
-				WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
-				CW_USEDEFAULT,
-				CW_USEDEFAULT,
-				326,
-				523,
-				(HWND)NULL,
-				hMainMenu,
-				MainWindow::hMainInstance,
-				(LPVOID)NULL
-			)
-		)
+			(DWORD)NULL,
+			STR_APP_CLASS,
+			STR_APP_TITLE,
+			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			326,
+			547,
+			(HWND)NULL,
+			hMainMenu,
+			MainWindow::hMainInstance,
+			(LPVOID)NULL
+		);
+
+		if (!MainWindow::hMainWindow)
 		{
 			DestroyMenu(hMainMenu);
 			return FALSE;
@@ -172,12 +189,15 @@ namespace MainWindow
 	BOOL MainWindow::AddComputerName(LPCWSTR computer_name)
 	{
 
-		const auto result = SendMessage
+		const auto result = ListBox_AddString
 		(
 			MainWindow::hComputersListBox,
-			LB_ADDSTRING,
-			(WPARAM)NULL,
-			(LPARAM)computer_name
+			computer_name
+		);
+
+		MainWindow::AddStatusBarCaption
+		(
+			ListBox_GetCount(MainWindow::hComputersListBox)
 		);
 
 		return (result >= 0);
@@ -266,8 +286,7 @@ namespace MainWindow
 				if (!MainWindow::StartShutdown((LPWSTR)NULL, FALSE))
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
 						L"Failed to shutdown current system",
@@ -282,8 +301,7 @@ namespace MainWindow
 				if (!MainWindow::StartShutdown((LPWSTR)NULL, TRUE))
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
 						L"Failed to reboot current system",
@@ -301,11 +319,10 @@ namespace MainWindow
 				)
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
-						L"Failed to cancel shutdown",
+						L"Failed to cancel shutdown of current system",
 						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
 						TDCBF_OK_BUTTON,
 						TD_ERROR_ICON,
@@ -334,50 +351,62 @@ namespace MainWindow
 
 			case ShutdownActionType::Shutdown:
 				if (!MainWindow::StartShutdown(computer_name, FALSE))
+				{
+					std::wstringstream ws_stream;
+					ws_stream << L"Failed to shutdown the " << computer_name << L" computer";
+
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
-						L"Failed to shutdown current system",
+						ws_stream.str().c_str(),
 						L"Possibly this action has been restricted by administrator",
 						TDCBF_OK_BUTTON,
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
+				}
 			break;
 
 			case ShutdownActionType::Reboot:
 				if (!MainWindow::StartShutdown(computer_name, TRUE))
+				{
+					std::wstringstream ws_stream;
+					ws_stream << L"Failed to reboot the " << computer_name << L" computer";
+
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
-						L"Failed to reboot current system",
+						ws_stream.str().c_str(),
 						L"Possibly this action has been restricted by administrator",
 						TDCBF_OK_BUTTON,
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
+				}
 			break;
 
 			case ShutdownActionType::Cancel:
 				if (!NativeShutdown::StopShutdown(computer_name))
+				{
+					std::wstringstream ws_stream;
+					ws_stream << L"Failed to cancel shutting down of the " << computer_name << L" computer";
+
 					TaskDialog
 					(
-						//hWnd,
-						NULL,
+						MainWindow::hMainWindow,
 						MainWindow::hMainInstance,
 						L"Error",
-						L"Failed to cancel shutdown",
+						ws_stream.str().c_str(),
 						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
 						TDCBF_OK_BUTTON,
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
+				}
 			break;
 
 			}
@@ -386,6 +415,69 @@ namespace MainWindow
 
 		}
 
+	}
+
+	void AddStatusBarCaption(int count)
+	{
+		std::wstringstream ws_stream;
+		ws_stream << L"Remote computers count: " << count;
+
+		SendMessage
+		(
+			MainWindow::hStatusBar,
+			SB_SETTEXT,
+			(WPARAM)0,
+			(LPARAM)ws_stream.str().c_str()
+		);
+	}
+
+	void ClearComputerNames()
+	{
+
+		if
+		(
+			ListBox_GetCount(MainWindow::hComputersListBox) > 0
+		)
+		{
+
+			int result = 0;
+
+			TaskDialog
+			(
+				MainWindow::hMainWindow,
+				MainWindow::hMainInstance,
+				L"Clear list of computer names",
+				L"Are you sure you want to clear all computer names from list?",
+				(PCWSTR)NULL,
+				TDCBF_YES_BUTTON | TDCBF_NO_BUTTON,
+				TD_WARNING_ICON,
+				&result
+			);
+
+			if (result != IDYES)
+				return;
+
+			ListBox_SetCurSel(MainWindow::hComputersListBox, -1);
+			ListBox_ResetContent(MainWindow::hComputersListBox);
+
+			MainWindow::AddStatusBarCaption
+			(
+				ListBox_GetCount(MainWindow::hComputersListBox)
+			);
+
+		}
+
+	}
+
+	void MainWindow::CloseWindow()
+	{
+		PostMessage
+		(
+			MainWindow::hMainWindow,
+			WM_CLOSE,
+			(WPARAM)NULL,
+			(LPARAM)NULL
+		);
 	}
 
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -648,6 +740,31 @@ namespace MainWindow
 
 			Edit_LimitText(MainWindow::hMessageEdit, 511);
 
+			MainWindow::hStatusBar = CreateWindowEx
+			(
+				(DWORD)NULL,
+				STATUSCLASSNAME,
+				STR_STATUS_BAR_TITLE,
+				WS_VISIBLE | WS_CHILD | SBARS_SIZEGRIP,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				hWnd,
+				(HMENU)IDS_STATUS_BAR_TITLE,
+				MainWindow::hMainInstance,
+				(LPVOID)NULL
+			);
+
+			SendMessage(MainWindow::hStatusBar, SB_SIMPLE, FALSE, (LPARAM)NULL);
+
+			{
+				const int parts[1] = { 185 };
+				SendMessage(MainWindow::hStatusBar, SB_SETPARTS, 1, (LPARAM)&parts);
+			}
+
+			MainWindow::AddStatusBarCaption(0);
+
 		break;
 
 		case WM_DESTROY:
@@ -758,7 +875,6 @@ namespace MainWindow
 					break;
 
 					case ID_ACTION_LOGOFF:
-
 						if (!NativeShutdown::UserLogOff())
 							TaskDialog
 							(
@@ -771,22 +887,13 @@ namespace MainWindow
 								TD_ERROR_ICON,
 								(int*)NULL
 							);
-
 					break;
 
 					case ID_ACTION_LOCK:
 
 						if (NativeShutdown::UserLock())
 						{
-
-							PostMessage
-							(
-								hWnd,
-								WM_CLOSE,
-								(WPARAM)NULL,
-								(LPARAM)NULL
-							);
-
+							MainWindow::CloseWindow();
 							return 0;
 						}
 
@@ -813,58 +920,31 @@ namespace MainWindow
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
-
 					AddComputersDialogInternals::__AddComputersDialog::ShowDialog
 					(
 						MainWindow::hMainInstance,
 						hWnd
 					);
-
 				break;
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:
-
 				{
 
-					const auto index = SendMessage(MainWindow::hComputersListBox, LB_GETCURSEL, NULL, NULL);
+					const auto index = ListBox_GetCurSel(MainWindow::hComputersListBox);
 
 					if (index != LB_ERR)
-						SendMessage(MainWindow::hComputersListBox, LB_DELETESTRING, (WPARAM)index, NULL);
+						ListBox_DeleteString(MainWindow::hComputersListBox, index);
+
+					MainWindow::AddStatusBarCaption
+					(
+						ListBox_GetCount(MainWindow::hComputersListBox)
+					);
 
 				}
-
 				break;
 
 				case IDS_CLEARCOMPUTERS_BUTTON_TITLE:
-
-				if
-				(
-					SendMessage(MainWindow::hComputersListBox, LB_GETCOUNT,NULL, NULL) > 0
-				)
-				{
-
-					int result = 0;
-
-					TaskDialog
-					(
-						hWnd,
-						MainWindow::hMainInstance,
-						L"Clear list of computer names",
-						L"Are you sure you want to clear all computer names from list?",
-						(PCWSTR)NULL,
-						TDCBF_YES_BUTTON | TDCBF_NO_BUTTON,
-						TD_WARNING_ICON,
-						&result
-					);
-
-					if (result != IDYES)
-						break;
-
-					SendMessage(MainWindow::hComputersListBox, LB_SETCURSEL, -1, NULL);
-					SendMessage(MainWindow::hComputersListBox, LB_RESETCONTENT, NULL, NULL);
-
-				}
-
+					MainWindow::ClearComputerNames();
 				break;
 
 				case IDS_TIMER_DEF_BUTTON_TITLE:
@@ -910,6 +990,10 @@ namespace MainWindow
 			)
 			{
 
+			case IDS_NEW_POPUP_ITEM:
+				MainWindow::ClearComputerNames();
+			break;
+
 			case IDS_OPEN_POPUP_ITEM:
 				TaskDialog
 				(
@@ -917,7 +1001,21 @@ namespace MainWindow
 					MainWindow::hMainInstance,
 					STR_ABOUT_POPUP_ITEM,
 					STR_APP_TITLE,
-					L"Hello World!",
+					L"Open dialog",
+					TDCBF_OK_BUTTON,
+					TD_INFORMATION_ICON,
+					(int*)NULL
+				);
+			break;
+
+			case IDS_SAVE_POPUP_ITEM:
+				TaskDialog
+				(
+					hWnd,
+					MainWindow::hMainInstance,
+					STR_ABOUT_POPUP_ITEM,
+					STR_APP_TITLE,
+					L"Save dialog",
 					TDCBF_OK_BUTTON,
 					TD_INFORMATION_ICON,
 					(int*)NULL
@@ -929,40 +1027,33 @@ namespace MainWindow
 				if (NativeShutdown::ShowShutdownDialog() != S_OK)
 					break;
 
-				PostMessage
-				(
-					hWnd,
-					WM_CLOSE,
-					(WPARAM)NULL,
-					(LPARAM)NULL
-				);
+				MainWindow::CloseWindow();
 
 			return 0;
 
 			case IDS_EXIT_POPUP_ITEM:
-
-				PostMessage
-				(
-					hWnd,
-					WM_CLOSE,
-					(WPARAM)NULL,
-					(LPARAM)NULL
-				);
-
+				MainWindow::CloseWindow();
 			return 0;
 
 			case IDS_ABOUT_POPUP_ITEM:
+			{
+				std::wstringstream ws_stream;
+				ws_stream << L"Version: " << STR_APP_VERSION << std::endl;
+				ws_stream << L"Developer: " << L"DP458" << std::endl;
+				ws_stream << L"Description: " << STR_APP_DESCRIPTION;
+
 				TaskDialog
 				(
 					hWnd,
 					MainWindow::hMainInstance,
 					STR_ABOUT_POPUP_ITEM,
 					STR_APP_TITLE,
-					STR_APP_DESCRIPTION,
+					ws_stream.str().c_str(),
 					TDCBF_OK_BUTTON,
 					TD_INFORMATION_ICON,
 					(int*)NULL
 				);
+			}
 			break;
 
 			}
