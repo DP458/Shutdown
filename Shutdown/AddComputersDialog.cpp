@@ -12,7 +12,8 @@ namespace AddComputersDialogInternals
 
 	// Private
 
-	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) : hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE)
+	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) : 
+		hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE), hDialogWindow(NULL), hComputerNameEdit(NULL), hAddButton(NULL), hCancelButton(NULL)
 	{
 
 	}
@@ -103,13 +104,7 @@ namespace AddComputersDialogInternals
 
 		GetWindowText(this->hComputerNameEdit, computer_name, text_length + 1);
 
-		SendMessage
-		(
-			MainWindow::GetHostListBoxHandle(),
-			LB_ADDSTRING,
-			(WPARAM)NULL,
-			(LPARAM)computer_name
-		);
+		MainWindow::AddComputerName(computer_name);
 
 		delete[] computer_name;
 		return TRUE;

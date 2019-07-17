@@ -6,8 +6,8 @@
 #define IDI_ICON4 4
 #define IDI_ICON5 5
 
-#define APP_VERSION 7,4,0,0
-#define STR_APP_VERSION L"7.4.0.0"
+#define APP_VERSION 7,4,1,0
+#define STR_APP_VERSION L"7.4.1.0"
 #define STR_APP_DESCRIPTION L"An application for shutting down the system"
 #define STR_APP_NAME L"Shutdown Windows"
 #define STR_APP_EXE_NAME L"Shutdown.exe"
@@ -63,12 +63,14 @@
 #define STR_MESSAGE_EDIT_TITLE NULL
 
 #define IDS_FILE_POPUP_MENU 200
+#define IDS_OPEN_POPUP_ITEM 207
 #define IDS_SYSTEMDIALOG_POPUP_ITEM 208
 #define IDS_EXIT_POPUP_ITEM 209
 #define IDS_HELP_POPUP_MENU 290
 #define IDS_ABOUT_POPUP_ITEM 299
 
 #define STR_FILE_POPUP_MENU L"File"
+#define STR_OPEN_POPUP_ITEM L"Open"
 #define STR_SYSTEMDIALOG_POPUP_ITEM L"System Dialog"
 #define STR_EXIT_POPUP_ITEM L"Exit"
 #define STR_HELP_POPUP_MENU L"Help"

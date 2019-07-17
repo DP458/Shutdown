@@ -65,10 +65,24 @@ namespace MainWindow
 		(
 			hFilePopupMenu,
 			MF_STRING,
+			IDS_OPEN_POPUP_ITEM,
+			STR_OPEN_POPUP_ITEM
+		);
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_SEPARATOR,
+			(UINT_PTR)NULL,
+			(LPCWSTR)NULL
+		);
+		AppendMenu
+		(
+			hFilePopupMenu,
+			MF_STRING,
 			IDS_SYSTEMDIALOG_POPUP_ITEM,
 			STR_SYSTEMDIALOG_POPUP_ITEM
 		);
-		AppendMenuW
+		AppendMenu
 		(
 			hFilePopupMenu,
 			MF_SEPARATOR,
@@ -147,15 +161,31 @@ namespace MainWindow
 
 	}
 
-	HWND MainWindow::GetHostListBoxHandle()
+	LRESULT MainWindow::AddComputerName(LPWSTR computer_name)
 	{
-		return MainWindow::hComputersListBox;
+		return SendMessage
+		(
+			MainWindow::hComputersListBox,
+			LB_ADDSTRING,
+			(WPARAM)NULL,
+			(LPARAM)computer_name
+		);
 	}
 
 	// Private
 
 	BOOL StartShutdown(BOOL bRebootAfterShutdown)
 	{
+
+		if
+		(
+			!NativeShutdown::SetShutdownPrivilege
+			(
+				(LPCWSTR)NULL,
+				true
+			)
+		)
+			return FALSE;
 
 		LPWSTR message = { 0 };
 
@@ -205,6 +235,26 @@ namespace MainWindow
 			delete[] message;
 
 		return result;
+
+	}
+
+	BOOL StopShutdown()
+	{
+
+		if
+		(
+			!NativeShutdown::SetShutdownPrivilege
+			(
+				(LPCWSTR)NULL,
+				true
+			)
+		)
+			return FALSE;
+
+		return AbortSystemShutdown
+		(
+			(LPWSTR)NULL
+		);
 
 	}
 
@@ -570,27 +620,6 @@ namespace MainWindow
 					{
 
 					case ID_ACTION_SHUTDOWN:
-
-						if
-						(
-							!NativeShutdown::SetShutdownPrivilege
-							(
-								(LPCWSTR)NULL,
-								true
-							)
-						)
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to get shutdown privilege for current process",
-								L"Possibly this privilege has restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
-
 						if (!MainWindow::StartShutdown(FALSE))
 							TaskDialog
 							(
@@ -598,36 +627,14 @@ namespace MainWindow
 								MainWindow::hMainInstance,
 								L"Error",
 								L"Failed to shutdown current system",
-								(PCWSTR)NULL,
+								L"Possibly this action has been restricted by administrator",
 								TDCBF_OK_BUTTON,
 								TD_ERROR_ICON,
 								(int*)NULL
 							);
-
 					break;
 
 					case ID_ACTION_REBOOT:
-
-						if
-						(
-							!NativeShutdown::SetShutdownPrivilege
-							(
-								(LPCWSTR)NULL,
-								true
-							)
-						)
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to get shutdown privilege for current process",
-								L"Possibly this privilege has restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
-
 						if (!MainWindow::StartShutdown(TRUE))
 							TaskDialog
 							(
@@ -635,12 +642,11 @@ namespace MainWindow
 								MainWindow::hMainInstance,
 								L"Error",
 								L"Failed to reboot current system",
-								(PCWSTR)NULL,
+								L"Possibly this action has been restricted by administrator",
 								TDCBF_OK_BUTTON,
 								TD_ERROR_ICON,
 								(int*)NULL
 							);
-
 					break;
 
 					case ID_ACTION_LOGOFF:
@@ -691,47 +697,18 @@ namespace MainWindow
 					break;
 
 					case ID_ACTION_CANCEL:
-					{
-
-						if
-						(
-							!NativeShutdown::SetShutdownPrivilege
-							(
-								(LPCWSTR)NULL,
-								true
-							)
-						)
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to get shutdown privilege for current process",
-								L"Possibly this privilege has restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
-
-						BOOL result = AbortSystemShutdown
-						(
-							(LPWSTR)NULL
-						);
-
-						if(!result)
+						if (!MainWindow::StopShutdown())
 							TaskDialog
 							(
 								hWnd,
 								MainWindow::hMainInstance,
 								L"Error",
 								L"Failed to cancel shutdown",
-								L"Possibly shutdown process has not been begun",
+								L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
 								TDCBF_OK_BUTTON,
 								TD_ERROR_ICON,
 								(int*)NULL
 							);
-
-					}
 					break;
 
 					}
@@ -752,7 +729,7 @@ namespace MainWindow
 
 				{
 
-					int index = (int)SendMessage(MainWindow::hComputersListBox, LB_GETCURSEL, NULL, NULL);
+					const auto index = SendMessage(MainWindow::hComputersListBox, LB_GETCURSEL, NULL, NULL);
 
 					if (index != LB_ERR)
 						SendMessage(MainWindow::hComputersListBox, LB_DELETESTRING, (WPARAM)index, NULL);
@@ -836,6 +813,20 @@ namespace MainWindow
 			)
 			{
 
+			case IDS_OPEN_POPUP_ITEM:
+				TaskDialog
+				(
+					hWnd,
+					MainWindow::hMainInstance,
+					STR_ABOUT_POPUP_ITEM,
+					STR_APP_TITLE,
+					STR_APP_DESCRIPTION,
+					TDCBF_OK_BUTTON,
+					TD_INFORMATION_ICON,
+					(int*)NULL
+				);
+			break;
+
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
 
 				if (NativeShutdown::ShowShutdownDialog() != S_OK)
@@ -864,7 +855,6 @@ namespace MainWindow
 			return 0;
 
 			case IDS_ABOUT_POPUP_ITEM:
-
 				TaskDialog
 				(
 					hWnd,
@@ -876,7 +866,6 @@ namespace MainWindow
 					TD_INFORMATION_ICON,
 					(int*)NULL
 				);
-
 			break;
 
 			}

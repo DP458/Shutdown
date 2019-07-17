@@ -5,6 +5,6 @@ namespace MainWindow
 
 	BOOL RegisterMainWindowClass(HINSTANCE hInstance);
 	BOOL CreateMainWindow();
-	HWND GetHostListBoxHandle();
+	LRESULT AddComputerName(LPWSTR computer_name);
 
 }
