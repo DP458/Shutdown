@@ -15,7 +15,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Canceling shutdown or rebooting
 
 	case L'A':
-		return NativeShutdown::StopShutdown() ? 0 : -1;
+		return NativeShutdown::StopShutdown((LPWSTR)NULL) ? 0 : -1;
 
 	// Shutdown Windows Dialog
 

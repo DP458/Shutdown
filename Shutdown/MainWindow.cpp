@@ -34,7 +34,6 @@ namespace MainWindow
 	HWND hMessageEdit;
 
 	BOOL StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown);
-	BOOL StopShutdown(LPWSTR computer_name);
 	void ShutdownComputers(ShutdownActionType type);
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -251,23 +250,6 @@ namespace MainWindow
 
 	}
 
-	BOOL StopShutdown(LPWSTR computer_name)
-	{
-
-		if
-		(
-			!NativeShutdown::SetShutdownPrivilege
-			(
-				computer_name,
-				true
-			)
-		)
-			return FALSE;
-
-		return AbortSystemShutdown(computer_name);
-
-	}
-
 	void MainWindow::ShutdownComputers(ShutdownActionType type)
 	{
 
@@ -315,10 +297,7 @@ namespace MainWindow
 			case ShutdownActionType::Cancel:
 				if
 				(
-					!MainWindow::StopShutdown
-					(
-						(LPWSTR)NULL
-					)
+					!NativeShutdown::StopShutdown((LPWSTR)NULL)
 				)
 					TaskDialog
 					(
@@ -386,7 +365,7 @@ namespace MainWindow
 			break;
 
 			case ShutdownActionType::Cancel:
-				if (!MainWindow::StopShutdown(computer_name))
+				if (!NativeShutdown::StopShutdown(computer_name))
 					TaskDialog
 					(
 						//hWnd,
