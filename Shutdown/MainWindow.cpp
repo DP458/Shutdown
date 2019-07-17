@@ -13,6 +13,13 @@ namespace MainWindow
 
 	// Private
 
+	enum ShutdownActionType
+	{
+		Shutdown,
+		Reboot,
+		Cancel
+	};
+
 	HINSTANCE hMainInstance;
 	HWND hActionsComboBox;
 	HWND hExecActionButton;
@@ -26,7 +33,9 @@ namespace MainWindow
 	HWND hPlannedCheckBox;
 	HWND hMessageEdit;
 
-	BOOL StartShutdown(BOOL bRebootAfterShutdown);
+	BOOL StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown);
+	BOOL StopShutdown(LPWSTR computer_name);
+	void ShutdownComputers(ShutdownActionType type);
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	// Public
@@ -161,27 +170,31 @@ namespace MainWindow
 
 	}
 
-	LRESULT MainWindow::AddComputerName(LPWSTR computer_name)
+	BOOL MainWindow::AddComputerName(LPCWSTR computer_name)
 	{
-		return SendMessage
+
+		const auto result = SendMessage
 		(
 			MainWindow::hComputersListBox,
 			LB_ADDSTRING,
 			(WPARAM)NULL,
 			(LPARAM)computer_name
 		);
+
+		return (result >= 0);
+
 	}
 
 	// Private
 
-	BOOL StartShutdown(BOOL bRebootAfterShutdown)
+	BOOL StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown)
 	{
 
 		if
 		(
 			!NativeShutdown::SetShutdownPrivilege
 			(
-				(LPCWSTR)NULL,
+				computer_name,
 				true
 			)
 		)
@@ -223,7 +236,7 @@ namespace MainWindow
 
 		const BOOL result = InitiateSystemShutdownEx
 		(
-			(LPWSTR)NULL,
+			computer_name,
 			message,
 			timer_value,
 			Button_GetCheck(MainWindow::hForceCheckBox),
@@ -238,23 +251,161 @@ namespace MainWindow
 
 	}
 
-	BOOL StopShutdown()
+	BOOL StopShutdown(LPWSTR computer_name)
 	{
 
 		if
 		(
 			!NativeShutdown::SetShutdownPrivilege
 			(
-				(LPCWSTR)NULL,
+				computer_name,
 				true
 			)
 		)
 			return FALSE;
 
-		return AbortSystemShutdown
-		(
-			(LPWSTR)NULL
-		);
+		return AbortSystemShutdown(computer_name);
+
+	}
+
+	void MainWindow::ShutdownComputers(ShutdownActionType type)
+	{
+
+		const int count = ListBox_GetCount(MainWindow::hComputersListBox);
+
+		if (count < 0)
+			return;
+
+		if (count == 0)
+			switch (type)
+			{
+
+			case ShutdownActionType::Shutdown:
+				if (!MainWindow::StartShutdown((LPWSTR)NULL, FALSE))
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to shutdown current system",
+						L"Possibly this action has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			return;
+
+			case ShutdownActionType::Reboot:
+				if (!MainWindow::StartShutdown((LPWSTR)NULL, TRUE))
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to reboot current system",
+						L"Possibly this action has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			return;
+
+			case ShutdownActionType::Cancel:
+				if
+				(
+					!MainWindow::StopShutdown
+					(
+						(LPWSTR)NULL
+					)
+				)
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to cancel shutdown",
+						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			return;
+
+			default:
+			return;
+
+			}
+
+		LPWSTR computer_name = { 0 };
+
+		for (int i = 0; i < count; i++)
+		{
+
+			const int computer_name_length = ListBox_GetTextLen(MainWindow::hComputersListBox, i);
+
+			computer_name = new WCHAR[computer_name_length + 1];
+
+			ListBox_GetText(MainWindow::hComputersListBox, i, computer_name);
+
+			switch (type)
+			{
+
+			case ShutdownActionType::Shutdown:
+				if (!MainWindow::StartShutdown(computer_name, FALSE))
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to shutdown current system",
+						L"Possibly this action has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			break;
+
+			case ShutdownActionType::Reboot:
+				if (!MainWindow::StartShutdown(computer_name, TRUE))
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to reboot current system",
+						L"Possibly this action has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			break;
+
+			case ShutdownActionType::Cancel:
+				if (!MainWindow::StopShutdown(computer_name))
+					TaskDialog
+					(
+						//hWnd,
+						NULL,
+						MainWindow::hMainInstance,
+						L"Error",
+						L"Failed to cancel shutdown",
+						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
+					);
+			break;
+
+			}
+
+			delete[] computer_name;
+
+		}
 
 	}
 
@@ -620,33 +771,11 @@ namespace MainWindow
 					{
 
 					case ID_ACTION_SHUTDOWN:
-						if (!MainWindow::StartShutdown(FALSE))
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to shutdown current system",
-								L"Possibly this action has been restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
+						MainWindow::ShutdownComputers(MainWindow::ShutdownActionType::Shutdown);
 					break;
 
 					case ID_ACTION_REBOOT:
-						if (!MainWindow::StartShutdown(TRUE))
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to reboot current system",
-								L"Possibly this action has been restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
+						MainWindow::ShutdownComputers(MainWindow::ShutdownActionType::Reboot);
 					break;
 
 					case ID_ACTION_LOGOFF:
@@ -697,18 +826,7 @@ namespace MainWindow
 					break;
 
 					case ID_ACTION_CANCEL:
-						if (!MainWindow::StopShutdown())
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::hMainInstance,
-								L"Error",
-								L"Failed to cancel shutdown",
-								L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
+						MainWindow::ShutdownComputers(MainWindow::ShutdownActionType::Cancel);
 					break;
 
 					}
@@ -820,7 +938,7 @@ namespace MainWindow
 					MainWindow::hMainInstance,
 					STR_ABOUT_POPUP_ITEM,
 					STR_APP_TITLE,
-					STR_APP_DESCRIPTION,
+					L"Hello World!",
 					TDCBF_OK_BUTTON,
 					TD_INFORMATION_ICON,
 					(int*)NULL

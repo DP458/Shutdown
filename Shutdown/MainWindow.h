@@ -5,6 +5,6 @@ namespace MainWindow
 
 	BOOL RegisterMainWindowClass(HINSTANCE hInstance);
 	BOOL CreateMainWindow();
-	LRESULT AddComputerName(LPWSTR computer_name);
+	BOOL AddComputerName(LPCWSTR computer_name);
 
 }
