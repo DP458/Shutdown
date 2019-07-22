@@ -13,7 +13,8 @@ namespace AddComputersDialogInternals
 	// Private
 
 	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) : 
-		hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE), hDialogWindow(NULL), hComputerNameEdit(NULL), hAddButton(NULL), hCancelButton(NULL)
+		hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE), hDialogWindow(NULL), hComputerNameEdit(NULL),
+		hAddButton(NULL), hCancelButton(NULL)
 	{
 
 	}
@@ -104,7 +105,7 @@ namespace AddComputersDialogInternals
 
 		GetWindowText(this->hComputerNameEdit, computer_name, text_length + 1);
 
-		MainWindow::AddComputerName(computer_name);
+		MainWindow::__MainWindow::GetInstance()->AddComputerName(computer_name);
 
 		delete[] computer_name;
 		return TRUE;
@@ -133,8 +134,8 @@ namespace AddComputersDialogInternals
 		{
 
 		case WM_DESTROY:
-			EnableWindow(pDlgObj->hOwnerWindow, TRUE);
-			SetActiveWindow(pDlgObj->hOwnerWindow);
+			EnableWindow(AddComputersDialogInternals::pDlgObj->hOwnerWindow, TRUE);
+			SetActiveWindow(AddComputersDialogInternals::pDlgObj->hOwnerWindow);
 		return 0;
 
 		case WM_COMMAND:
@@ -149,18 +150,18 @@ namespace AddComputersDialogInternals
 
 				case IDS_ADDCOMPUTERS_ADD_BUTTON:
 
-					if (!pDlgObj->AddComputerName())
+					if (!AddComputersDialogInternals::pDlgObj->AddComputerName())
 					{
-						SetFocus(pDlgObj->hComputerNameEdit);
+						SetFocus(AddComputersDialogInternals::pDlgObj->hComputerNameEdit);
 						break;
 					}
 
-					pDlgObj->CloseWindow();
+					AddComputersDialogInternals::pDlgObj->CloseWindow();
 
 				return 0;
 
 				case IDS_ADDCOMPUTERS_CANCEL_BUTTON:
-					pDlgObj->CloseWindow();
+					AddComputersDialogInternals::pDlgObj->CloseWindow();
 				return 0;
 
 				}
@@ -184,7 +185,7 @@ namespace AddComputersDialogInternals
 
 		static __AddComputersDialog DlgInternalObj(hInstance, hOwnerWnd);
 
-		pDlgObj = &DlgInternalObj;
+		AddComputersDialogInternals::pDlgObj = &DlgInternalObj;
 
 		if (!DlgInternalObj.bIsClassRegistered)
 		{

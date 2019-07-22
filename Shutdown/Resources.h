@@ -6,9 +6,9 @@
 #define IDI_ICON4 4
 #define IDI_ICON5 5
 
-#define APP_VERSION 7,4,3,0
-#define STR_APP_VERSION L"7.4.3.0"
-#define STR_APP_DESCRIPTION L"An application for shutting down the system"
+#define APP_VERSION 7,4,4,0
+#define STR_APP_VERSION L"7.4.4.0"
+#define STR_APP_DESCRIPTION L"User-friendly application for shutdown Windows OS"
 #define STR_APP_NAME L"Shutdown Windows"
 #define STR_APP_EXE_NAME L"Shutdown.exe"
 

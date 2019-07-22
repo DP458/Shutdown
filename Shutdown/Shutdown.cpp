@@ -46,14 +46,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//
 
-	if (!MainWindow::RegisterMainWindowClass(hInstance))
+	if (!MainWindow::__MainWindow::ShowDialog(hInstance))
 	{
 		TaskDialog
 		(
 			(HWND)NULL,
 			hInstance,
 			L"Error",
-			L"Failed to register main window class",
+			L"Failed to show main window",
 			(PCWSTR)NULL,
 			TDCBF_OK_BUTTON,
 			TD_ERROR_ICON,
@@ -61,24 +61,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		);
 		return -1;
 	}
-
-	if (!MainWindow::CreateMainWindow())
-	{
-		TaskDialog
-		(
-			(HWND)NULL,
-			hInstance,
-			L"Error",
-			L"Failed to create main window",
-			(PCWSTR)NULL,
-			TDCBF_OK_BUTTON,
-			TD_ERROR_ICON,
-			(int*)NULL
-		);
-		return -1;
-	}
-
-	//
 
 	BOOL bRet = FALSE;
 	MSG msg = { 0 };
