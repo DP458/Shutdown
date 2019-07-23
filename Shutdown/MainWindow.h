@@ -23,18 +23,21 @@ namespace MainWindow
 		HWND hMessageEdit;
 		HWND hStatusBar;
 
-		enum ShutdownActionType
+		enum ShutdownStatus
 		{
-			Shutdown,
-			Reboot,
-			Cancel
+			Ready,
+			Successful,
+			Fail
 		};
 
 		__MainWindow(HINSTANCE hInstance);
 		void InitMainWindow();
-		BOOL StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown);
-		void ShutdownComputers(ShutdownActionType type);
-		void AddStatusBarCaption(int count);
+		DWORD GetTimerValue();
+		BOOL StartShutdown(int listbox_index, BOOL bRebootAfterShutdown);
+		BOOL StopShutdown(int listbox_index);
+		void ExecActionButtonClick();
+		void UpdateStatusBarCaption(int count);
+		void UpdateStatusBarCaption(ShutdownStatus status);
 		void ClearComputerNames();
 		void CloseWindow();
 		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

@@ -22,7 +22,6 @@ namespace MainWindow
 
 	void MainWindow::__MainWindow::InitMainWindow()
 	{
-
 		CreateWindowEx
 		(
 			(DWORD)NULL,
@@ -294,8 +293,8 @@ namespace MainWindow
 		SendMessage(this->hStatusBar, SB_SIMPLE, FALSE, (LPARAM)NULL);
 
 		{
-			const int parts_count = 1;
-			const int parts[parts_count] = { 175 };
+			const int parts_count = 2;
+			const int parts[parts_count] = { 120, 260 };
 
 			SendMessage
 			(
@@ -306,12 +305,76 @@ namespace MainWindow
 			);
 		}
 
-		this->AddStatusBarCaption(0);
-
+		this->UpdateStatusBarCaption(0);
+		this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Ready);
 	}
 
-	BOOL MainWindow::__MainWindow::StartShutdown(LPWSTR computer_name, BOOL bRebootAfterShutdown)
+	/*
+	Function GetTimerValue()
+	Returns DWORD value from Timer edit box
+	Returns ULONG_MAX if error has occurred
+	*/
+	DWORD MainWindow::__MainWindow::GetTimerValue()
 	{
+
+		const int timer_length = GetWindowTextLength(this->hTimerEdit);
+		LPWSTR timer = nullptr;
+
+		try
+		{
+			timer = new WCHAR[timer_length + 1];
+		}
+
+		catch (...)
+		{
+			return ULONG_MAX;
+		}
+
+		GetWindowText
+		(
+			this->hTimerEdit,
+			timer,
+			timer_length + 1
+		);
+
+		const DWORD timer_value = wcstoul
+		(
+			timer,
+			(wchar_t**)NULL,
+			10
+		);
+
+		delete[] timer;
+		return timer_value;
+	}
+
+	BOOL MainWindow::__MainWindow::StartShutdown(int listbox_index, BOOL bRebootAfterShutdown)
+	{
+		LPWSTR computer_name = nullptr;
+
+		if (listbox_index >= 0)
+		{
+			const int computer_name_length = ListBox_GetTextLen(this->hComputersListBox, listbox_index);
+
+			if (computer_name_length < 0)
+				return FALSE;
+
+			try
+			{
+				computer_name = new WCHAR[computer_name_length + 1];
+			}
+			catch (...)
+			{
+				return FALSE;
+			}
+
+			ListBox_GetText
+			(
+				this->hComputersListBox,
+				listbox_index,
+				computer_name
+			);
+		}
 
 		if
 		(
@@ -321,41 +384,60 @@ namespace MainWindow
 				true
 			)
 		)
+		{
+			if (computer_name != nullptr)
+				delete[] computer_name;
 			return FALSE;
-
-		LPWSTR message = { 0 };
-
-		const int msg_length = GetWindowTextLength(this->hMessageEdit);
-
-		if (msg_length > 0)
-		{
-			message = new WCHAR[msg_length + 1];
-			GetWindowText(this->hMessageEdit, message, msg_length + 1);
 		}
 
-		DWORD timer_value;
+		LPWSTR message = nullptr;
 
 		{
+			const int msg_length = GetWindowTextLength(this->hMessageEdit);
 
-			const int timer_length = GetWindowTextLength(this->hTimerEdit);
-			LPWSTR timer = new WCHAR[timer_length + 1];
-			GetWindowText(this->hTimerEdit, timer, timer_length + 1);
+			if (msg_length > 0)
+			{
+				try
+				{
+					message = new WCHAR[msg_length + 1];
+				}
+				catch (...)
+				{
+					if (computer_name != nullptr)
+						delete[] computer_name;
 
-			timer_value = wcstoul
-			(
-				timer,
-				(wchar_t**)NULL,
-				10
-			);
+					return FALSE;
+				}
 
-			delete[] timer;
-
+				GetWindowText
+				(
+					this->hMessageEdit,
+					message,
+					msg_length + 1
+				);
+			}
 		}
 
-		DWORD  dwReason = SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER;
+		const DWORD timer_value = this->GetTimerValue();
 
-		if (Button_GetCheck(this->hPlannedCheckBox))
-			dwReason = dwReason | SHTDN_REASON_FLAG_PLANNED;
+		if (timer_value == ULONG_MAX)
+		{
+			if (message != nullptr)
+				delete[] message;
+
+			if (computer_name != nullptr)
+				delete[] computer_name;
+
+			return FALSE;
+		}
+
+		DWORD dwReason = SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER;
+
+		if
+		(
+			Button_GetCheck(this->hPlannedCheckBox)
+		)
+			dwReason |= SHTDN_REASON_FLAG_PLANNED;
 
 		const BOOL result = InitiateSystemShutdownEx
 		(
@@ -367,27 +449,137 @@ namespace MainWindow
 			dwReason
 		);
 
-		if (msg_length > 0)
+		if (message != nullptr)
 			delete[] message;
 
-		return result;
+		if (computer_name != nullptr)
+			delete[] computer_name;
 
+		return result;
 	}
 
-	void MainWindow::__MainWindow::ShutdownComputers(ShutdownActionType type)
+	BOOL MainWindow::__MainWindow::StopShutdown(int listbox_index)
+	{		
+		LPWSTR computer_name = nullptr;
+
+		if (listbox_index >= 0)
+		{
+			const int computer_name_length = ListBox_GetTextLen(this->hComputersListBox, listbox_index);
+
+			if (computer_name_length < 0)
+				return FALSE;
+
+			try
+			{
+				computer_name = new WCHAR[computer_name_length + 1];
+			}
+			catch (...)
+			{
+				return FALSE;
+			}
+
+			ListBox_GetText
+			(
+				this->hComputersListBox,
+				listbox_index,
+				computer_name
+			);
+		}
+
+		if
+		(
+			!NativeShutdown::SetShutdownPrivilege
+			(
+				computer_name,
+				true
+			)
+		)
+		{
+			if (computer_name != nullptr)
+				delete[] computer_name;
+			return FALSE;
+		}
+
+		const BOOL result = AbortSystemShutdown(computer_name);
+
+		if (computer_name != nullptr)
+			delete[] computer_name;
+
+		return result;
+	}
+
+	void MainWindow::__MainWindow::ExecActionButtonClick()
 	{
+
+		const int item_id = ComboBox_GetCurSel(this->hActionsComboBox);
+
+		switch (item_id)
+		{
+
+		case ID_ACTION_LOGOFF:
+			if
+			(
+				!NativeShutdown::UserLogOff()
+			)
+			{
+				TaskDialog
+				(
+					this->hMainWindow,
+					this->hMainInstance,
+					L"Error",
+					L"Failed to log off current user",
+					(PCWSTR)NULL,
+					TDCBF_OK_BUTTON,
+					TD_ERROR_ICON,
+					(int*)NULL
+				);
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+				return;
+			}
+
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+		return;
+
+		case ID_ACTION_LOCK:
+			if
+			(
+				!NativeShutdown::UserLock()
+			)
+			{
+				TaskDialog
+				(
+					this->hMainWindow,
+					this->hMainInstance,
+					L"Error",
+					L"Failed to lock current user",
+					(PCWSTR)NULL,
+					TDCBF_OK_BUTTON,
+					TD_ERROR_ICON,
+					(int*)NULL
+				);
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+				return;
+			}
+
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+			this->CloseWindow();
+		return;
+
+		}
 
 		const int count = ListBox_GetCount(this->hComputersListBox);
 
-		if (count < 0)
-			return;
+		switch (item_id)
+		{
 
-		if (count == 0)
-			switch (type)
+		case ID_ACTION_SHUTDOWN:
+			if (count == 0)
 			{
-
-			case ShutdownActionType::Shutdown:
-				if (!this->StartShutdown((LPWSTR)NULL, FALSE))
+				if
+				(
+					!this->StartShutdown(-1, FALSE)
+				)
+				{
 					TaskDialog
 					(
 						this->hMainWindow,
@@ -399,10 +591,26 @@ namespace MainWindow
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
-			return;
+					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+					break;
+				}
 
-			case ShutdownActionType::Reboot:
-				if (!this->StartShutdown((LPWSTR)NULL, TRUE))
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+				break;
+			}
+
+			for (int i = 0; i < count; i++)
+				this->StartShutdown(i, FALSE);
+			break;
+
+		case ID_ACTION_REBOOT:
+			if (count == 0)
+			{
+				if
+				(
+					!this->StartShutdown(-1, TRUE)
+				)
+				{
 					TaskDialog
 					(
 						this->hMainWindow,
@@ -414,117 +622,57 @@ namespace MainWindow
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
-			return;
+					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+					break;
+				}
 
-			case ShutdownActionType::Cancel:
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+				break;
+			}
+
+			for (int i = 0; i < count; i++)
+				this->StartShutdown(i, TRUE);
+			break;
+
+		case ID_ACTION_CANCEL:
+			if (count == 0)
+			{
 				if
 				(
-					!NativeShutdown::StopShutdown((LPWSTR)NULL)
+					!this->StopShutdown(-1)
 				)
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						L"Failed to cancel shutdown of current system",
-						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-			return;
-
-			default:
-			return;
-
-			}
-
-		LPWSTR computer_name = { 0 };
-
-		for (int i = 0; i < count; i++)
-		{
-
-			const int computer_name_length = ListBox_GetTextLen(this->hComputersListBox, i);
-
-			computer_name = new WCHAR[computer_name_length + 1];
-
-			ListBox_GetText(this->hComputersListBox, i, computer_name);
-
-			switch (type)
-			{
-
-			case ShutdownActionType::Shutdown:
-				if (!this->StartShutdown(computer_name, FALSE))
 				{
-					std::wstringstream ws_stream;
-					ws_stream << L"Failed to shutdown the " << computer_name;
-
 					TaskDialog
 					(
 						this->hMainWindow,
 						this->hMainInstance,
 						L"Error",
-						ws_stream.str().c_str(),
+						L"Failed to reboot current system",
 						L"Possibly this action has been restricted by administrator",
 						TDCBF_OK_BUTTON,
 						TD_ERROR_ICON,
 						(int*)NULL
 					);
+					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+					break;
 				}
-			break;
 
-			case ShutdownActionType::Reboot:
-				if (!this->StartShutdown(computer_name, TRUE))
-				{
-					std::wstringstream ws_stream;
-					ws_stream << L"Failed to reboot the " << computer_name;
-
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						ws_stream.str().c_str(),
-						L"Possibly this action has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-				}
-			break;
-
-			case ShutdownActionType::Cancel:
-				if (!NativeShutdown::StopShutdown(computer_name))
-				{
-					std::wstringstream ws_stream;
-					ws_stream << L"Failed to cancel shutting down of the " << computer_name;
-
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						ws_stream.str().c_str(),
-						L"Possibly shutdown process has not been begun or shutdown privilege has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-				}
-			break;
-
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+				break;
 			}
 
-			delete[] computer_name;
+			for (int i = 0; i < count; i++)
+				this->StopShutdown(i);
+			break;
 
 		}
 
 	}
 
-	void MainWindow::__MainWindow::AddStatusBarCaption(int count)
+	void MainWindow::__MainWindow::UpdateStatusBarCaption(int count)
 	{
 		std::wstringstream ws_stream;
-		ws_stream << L"Remote computers count: " << count;
+		ws_stream << L"  Computers:  " << count;
 
 		SendMessage
 		(
@@ -533,6 +681,44 @@ namespace MainWindow
 			(WPARAM)0,
 			(LPARAM)ws_stream.str().c_str()
 		);
+	}
+
+	void MainWindow::__MainWindow::UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus status)
+	{
+		switch(status)
+		{
+
+		case ShutdownStatus::Successful:
+			SendMessage
+			(
+				this->hStatusBar,
+				SB_SETTEXT,
+				(WPARAM)1,
+				(LPARAM)L"  Status:  Successful"
+			);
+		break;
+
+		case ShutdownStatus::Fail:
+			SendMessage
+			(
+				this->hStatusBar,
+				SB_SETTEXT,
+				(WPARAM)1,
+				(LPARAM)L"  Status:  Fail"
+			);
+		break;
+
+		default:
+			SendMessage
+			(
+				this->hStatusBar,
+				SB_SETTEXT,
+				(WPARAM)1,
+				(LPARAM)L"  Status:  Ready"
+			);
+		break;
+
+		}
 	}
 
 	void MainWindow::__MainWindow::ClearComputerNames()
@@ -564,7 +750,7 @@ namespace MainWindow
 			ListBox_SetCurSel(this->hComputersListBox, -1);
 			ListBox_ResetContent(this->hComputersListBox);
 
-			this->AddStatusBarCaption
+			this->UpdateStatusBarCaption
 			(
 				ListBox_GetCount(this->hComputersListBox)
 			);
@@ -689,61 +875,7 @@ namespace MainWindow
 				{
 
 				case IDS_EXECACTION_BUTTON_TITLE:
-
-					switch (ComboBox_GetCurSel(MainWindow::pWndObj->hActionsComboBox))
-					{
-
-					case ID_ACTION_SHUTDOWN:
-						MainWindow::pWndObj->ShutdownComputers(MainWindow::__MainWindow::ShutdownActionType::Shutdown);
-					break;
-
-					case ID_ACTION_REBOOT:
-						MainWindow::pWndObj->ShutdownComputers(MainWindow::__MainWindow::ShutdownActionType::Reboot);
-					break;
-
-					case ID_ACTION_LOGOFF:
-						if (!NativeShutdown::UserLogOff())
-							TaskDialog
-							(
-								hWnd,
-								MainWindow::pWndObj->hMainInstance,
-								L"Error",
-								L"Failed to log off current user",
-								(PCWSTR)NULL,
-								TDCBF_OK_BUTTON,
-								TD_ERROR_ICON,
-								(int*)NULL
-							);
-					break;
-
-					case ID_ACTION_LOCK:
-
-						if (NativeShutdown::UserLock())
-						{
-							MainWindow::pWndObj->CloseWindow();
-							return 0;
-						}
-
-						TaskDialog
-						(
-							hWnd,
-							MainWindow::pWndObj->hMainInstance,
-							L"Error",
-							L"Failed to lock current user",
-							(PCWSTR)NULL,
-							TDCBF_OK_BUTTON,
-							TD_ERROR_ICON,
-							(int*)NULL
-						);
-
-					break;
-
-					case ID_ACTION_CANCEL:
-						MainWindow::pWndObj->ShutdownComputers(MainWindow::__MainWindow::ShutdownActionType::Cancel);
-					break;
-
-					}
-
+					MainWindow::pWndObj->ExecActionButtonClick();
 				break;
 
 				case IDS_ADDCOMPUTERS_BUTTON_TITLE:
@@ -762,7 +894,7 @@ namespace MainWindow
 					if (index != LB_ERR)
 						ListBox_DeleteString(MainWindow::pWndObj->hComputersListBox, index);
 
-					MainWindow::pWndObj->AddStatusBarCaption
+					MainWindow::pWndObj->UpdateStatusBarCaption
 					(
 						ListBox_GetCount(MainWindow::pWndObj->hComputersListBox)
 					);
@@ -904,7 +1036,7 @@ namespace MainWindow
 			computer_name
 		);
 
-		this->AddStatusBarCaption
+		this->UpdateStatusBarCaption
 		(
 			ListBox_GetCount(this->hComputersListBox)
 		);
