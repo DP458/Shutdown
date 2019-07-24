@@ -12,6 +12,7 @@
 #include <windowsx.h>
 #include <CommCtrl.h>
 #include <shldisp.h>
+#include <shobjidl.h>
 #include <atlbase.h>
 #include <wchar.h>
 #include <memory>

@@ -75,7 +75,6 @@ BOOL NativeShutdown::SetShutdownPrivilege(LPCWSTR lpSystemName, BOOL EnablePrivi
 
 HRESULT NativeShutdown::ShowShutdownDialog()
 {
-
 	HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
 	if
@@ -93,13 +92,14 @@ HRESULT NativeShutdown::ShowShutdownDialog()
 		CLSCTX_INPROC_SERVER
 	);
 
-	if (hRes != S_OK)
+	if (!SUCCEEDED(hRes))
+	{
+		CoUninitialize();
 		return hRes;
+	}
 
 	hRes = ShellDispatch->ShutdownWindows();
 
 	CoUninitialize();
-
 	return hRes;
-
 }

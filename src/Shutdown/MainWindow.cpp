@@ -815,6 +815,9 @@ namespace MainWindow
 
 					case ID_ACTION_SHUTDOWN: case ID_ACTION_REBOOT:
 
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 						EnableWindow(MainWindow::pWndObj->hExecActionButton, TRUE);
 						SendMessage(MainWindow::pWndObj->hComputersListBox, LB_SETCURSEL, -1, NULL);
 						EnableWindow(MainWindow::pWndObj->hComputersListBox, TRUE);
@@ -831,6 +834,9 @@ namespace MainWindow
 
 					case ID_ACTION_LOGOFF: case ID_ACTION_LOCK:
 
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 						EnableWindow(MainWindow::pWndObj->hExecActionButton, TRUE);
 						SendMessage(MainWindow::pWndObj->hComputersListBox, LB_SETCURSEL, -1, NULL);
 						EnableWindow(MainWindow::pWndObj->hComputersListBox, FALSE);
@@ -847,6 +853,9 @@ namespace MainWindow
 
 					case ID_ACTION_CANCEL:
 
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+						EnableMenuItem(GetMenu(MainWindow::pWndObj->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 						EnableWindow(MainWindow::pWndObj->hExecActionButton, TRUE);
 						SendMessage(MainWindow::pWndObj->hComputersListBox, LB_SETCURSEL, -1, NULL);
 						EnableWindow(MainWindow::pWndObj->hComputersListBox, TRUE);
@@ -954,31 +963,95 @@ namespace MainWindow
 			break;
 
 			case IDS_OPEN_POPUP_ITEM:
-				TaskDialog
+			{
+				HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+				if
 				(
-					hWnd,
-					MainWindow::pWndObj->hMainInstance,
-					STR_ABOUT_POPUP_ITEM,
-					STR_APP_TITLE,
-					L"Open dialog",
-					TDCBF_OK_BUTTON,
-					TD_INFORMATION_ICON,
-					(int*)NULL
+					(hRes != S_OK) && (hRes != S_FALSE)
+				)
+					break;
+
+				CComPtr<IFileOpenDialog> FileOpenDialog;
+
+				hRes = FileOpenDialog.CoCreateInstance
+				(
+					CLSID_FileOpenDialog,
+					NULL,
+					CLSCTX_INPROC_SERVER
 				);
+
+				if (!SUCCEEDED(hRes))
+				{
+					CoUninitialize();
+					break;
+				}
+
+				{
+					COMDLG_FILTERSPEC file_type;
+					file_type.pszName = L"Plain text";
+					file_type.pszSpec = L"*.*";
+
+					FileOpenDialog->SetFileTypes(1, &file_type);
+					FileOpenDialog->SetFileTypeIndex(1);
+				}
+
+				hRes = FileOpenDialog->Show(MainWindow::pWndObj->hMainWindow);
+
+				if (!SUCCEEDED(hRes))
+				{
+					CoUninitialize();
+					break;
+				}
+
+				CoUninitialize();
+			}
 			break;
 
 			case IDS_SAVE_POPUP_ITEM:
-				TaskDialog
+			{
+				HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+				if
 				(
-					hWnd,
-					MainWindow::pWndObj->hMainInstance,
-					STR_ABOUT_POPUP_ITEM,
-					STR_APP_TITLE,
-					L"Save dialog",
-					TDCBF_OK_BUTTON,
-					TD_INFORMATION_ICON,
-					(int*)NULL
+					(hRes != S_OK) && (hRes != S_FALSE)
+				)
+					break;
+
+				CComPtr<IFileSaveDialog> FileSaveDialog;
+
+				hRes = FileSaveDialog.CoCreateInstance
+				(
+					CLSID_FileSaveDialog,
+					NULL,
+					CLSCTX_INPROC_SERVER
 				);
+
+				if (!SUCCEEDED(hRes))
+				{
+					CoUninitialize();
+					break;
+				}
+
+				{
+					COMDLG_FILTERSPEC file_type;
+					file_type.pszName = L"Plain text";
+					file_type.pszSpec = L"*.*";
+
+					FileSaveDialog->SetFileTypes(1, &file_type);
+					FileSaveDialog->SetFileTypeIndex(1);
+				}
+
+				hRes = FileSaveDialog->Show(MainWindow::pWndObj->hMainWindow);
+
+				if (!SUCCEEDED(hRes))
+				{
+					CoUninitialize();
+					break;
+				}
+
+				CoUninitialize();
+			}
 			break;
 
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
@@ -1083,21 +1156,21 @@ namespace MainWindow
 		AppendMenu
 		(
 			hFilePopupMenu,
-			MF_STRING,
+			MF_STRING | MF_GRAYED,
 			IDS_NEW_POPUP_ITEM,
 			STR_NEW_POPUP_ITEM
 		);
 		AppendMenu
 		(
 			hFilePopupMenu,
-			MF_STRING,
+			MF_STRING | MF_GRAYED,
 			IDS_OPEN_POPUP_ITEM,
 			STR_OPEN_POPUP_ITEM
 		);
 		AppendMenu
 		(
 			hFilePopupMenu,
-			MF_STRING,
+			MF_STRING | MF_GRAYED,
 			IDS_SAVE_POPUP_ITEM,
 			STR_SAVE_POPUP_ITEM
 		);
