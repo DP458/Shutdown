@@ -384,9 +384,8 @@ namespace MainWindow
 				true
 			)
 		)
-		{
-			if (computer_name != nullptr)
-				delete[] computer_name;
+		{	
+			delete[] computer_name;
 			return FALSE;
 		}
 
@@ -403,9 +402,7 @@ namespace MainWindow
 				}
 				catch (...)
 				{
-					if (computer_name != nullptr)
-						delete[] computer_name;
-
+					delete[] computer_name;
 					return FALSE;
 				}
 
@@ -422,12 +419,8 @@ namespace MainWindow
 
 		if (timer_value == ULONG_MAX)
 		{
-			if (message != nullptr)
-				delete[] message;
-
-			if (computer_name != nullptr)
-				delete[] computer_name;
-
+			delete[] message;
+			delete[] computer_name;
 			return FALSE;
 		}
 
@@ -449,12 +442,8 @@ namespace MainWindow
 			dwReason
 		);
 
-		if (message != nullptr)
-			delete[] message;
-
-		if (computer_name != nullptr)
-			delete[] computer_name;
-
+		delete[] message;
+		delete[] computer_name;
 		return result;
 	}
 
@@ -495,16 +484,13 @@ namespace MainWindow
 			)
 		)
 		{
-			if (computer_name != nullptr)
-				delete[] computer_name;
+			delete[] computer_name;
 			return FALSE;
 		}
 
 		const BOOL result = AbortSystemShutdown(computer_name);
-
-		if (computer_name != nullptr)
-			delete[] computer_name;
-
+		
+		delete[] computer_name;
 		return result;
 	}
 
@@ -998,6 +984,47 @@ namespace MainWindow
 
 				if (!SUCCEEDED(hRes))
 					break;
+
+				std::wifstream ifs;
+
+				{
+					CComPtr<IShellItem> item;
+					FileOpenDialog->GetResult(&item);
+
+					PWSTR file_path;
+
+					item->GetDisplayName
+					(
+						SIGDN_FILESYSPATH,
+						&file_path
+					);
+
+					ifs.open(file_path);
+
+					CoTaskMemFree(file_path);
+				}
+
+				if
+				(
+					ListBox_GetCount(MainWindow::pWndObj->hComputersListBox) > 0
+				)
+				{
+					ListBox_SetCurSel(MainWindow::pWndObj->hComputersListBox, -1);
+					ListBox_ResetContent(MainWindow::pWndObj->hComputersListBox);
+				}
+
+				while (!ifs.eof())
+				{
+					std::wstring str;
+					ifs >> str;
+
+					if (ifs.fail())
+						break;
+
+					MainWindow::pWndObj->AddComputerName(str.c_str());
+				}
+
+				ifs.close();
 			}
 			break;
 
@@ -1102,7 +1129,6 @@ namespace MainWindow
 
 	BOOL MainWindow::__MainWindow::AddComputerName(LPCWSTR computer_name)
 	{
-
 		const auto result = ListBox_AddString
 		(
 			this->hComputersListBox,
@@ -1115,7 +1141,6 @@ namespace MainWindow
 		);
 
 		return (result >= 0);
-
 	}
 
 	BOOL MainWindow::__MainWindow::ShowDialog(HINSTANCE hInstance)
