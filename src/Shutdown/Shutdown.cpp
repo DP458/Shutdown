@@ -8,7 +8,6 @@
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-
 	switch (lpCmdLine[0])
 	{
 
@@ -46,6 +45,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//
 
+	{
+		const HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+		if
+		(
+			(hRes != S_OK) && (hRes != S_FALSE)
+		)
+			return -1;
+	}
+
 	if (!MainWindow::__MainWindow::ShowDialog(hInstance))
 	{
 		TaskDialog
@@ -65,17 +74,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	BOOL bRet = FALSE;
 	MSG msg = { 0 };
 
-	while (bRet = GetMessage(&msg, (HWND)NULL, 0U, 0U))
+	while
+	(
+		bRet = GetMessage
+		(
+			&msg,
+			(HWND)NULL,
+			0U, 
+			0U
+		)
+	)
 	{
-
 		if (bRet == -1)
 			break;
 
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-
 	}
 
+	CoUninitialize();
 	return (int)msg.wParam;
-
 }

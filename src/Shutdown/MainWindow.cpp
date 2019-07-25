@@ -964,17 +964,9 @@ namespace MainWindow
 
 			case IDS_OPEN_POPUP_ITEM:
 			{
-				HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-				if
-				(
-					(hRes != S_OK) && (hRes != S_FALSE)
-				)
-					break;
-
 				CComPtr<IFileOpenDialog> FileOpenDialog;
 
-				hRes = FileOpenDialog.CoCreateInstance
+				HRESULT hRes = FileOpenDialog.CoCreateInstance
 				(
 					CLSID_FileOpenDialog,
 					NULL,
@@ -982,45 +974,38 @@ namespace MainWindow
 				);
 
 				if (!SUCCEEDED(hRes))
-				{
-					CoUninitialize();
 					break;
-				}
 
 				{
-					COMDLG_FILTERSPEC file_type;
-					file_type.pszName = L"Plain text";
-					file_type.pszSpec = L"*.*";
+					const UINT count = 2U;
 
-					FileOpenDialog->SetFileTypes(1, &file_type);
-					FileOpenDialog->SetFileTypeIndex(1);
+					COMDLG_FILTERSPEC file_types[count];
+					file_types[0].pszName = L"Plain text";
+					file_types[0].pszSpec = L"*.txt";
+					file_types[1].pszName = L"Plain text";
+					file_types[1].pszSpec = L"*.*";
+
+					FileOpenDialog->SetFileTypes
+					(
+						count,
+						file_types
+					);
+
+					FileOpenDialog->SetFileTypeIndex(count - 1U);
 				}
 
 				hRes = FileOpenDialog->Show(MainWindow::pWndObj->hMainWindow);
 
 				if (!SUCCEEDED(hRes))
-				{
-					CoUninitialize();
 					break;
-				}
-
-				CoUninitialize();
 			}
 			break;
 
 			case IDS_SAVE_POPUP_ITEM:
 			{
-				HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-				if
-				(
-					(hRes != S_OK) && (hRes != S_FALSE)
-				)
-					break;
-
 				CComPtr<IFileSaveDialog> FileSaveDialog;
 
-				hRes = FileSaveDialog.CoCreateInstance
+				HRESULT hRes = FileSaveDialog.CoCreateInstance
 				(
 					CLSID_FileSaveDialog,
 					NULL,
@@ -1028,39 +1013,54 @@ namespace MainWindow
 				);
 
 				if (!SUCCEEDED(hRes))
-				{
-					CoUninitialize();
 					break;
-				}
 
 				{
-					COMDLG_FILTERSPEC file_type;
-					file_type.pszName = L"Plain text";
-					file_type.pszSpec = L"*.*";
+					const UINT count = 2U;
 
-					FileSaveDialog->SetFileTypes(1, &file_type);
-					FileSaveDialog->SetFileTypeIndex(1);
+					COMDLG_FILTERSPEC file_types[count];
+					file_types[0].pszName = L"Plain text";
+					file_types[0].pszSpec = L"*.txt";
+					file_types[1].pszName = L"Plain text";
+					file_types[1].pszSpec = L"*.*";
+
+					FileSaveDialog->SetFileTypes
+					(
+						count,
+						file_types
+					);
+
+					FileSaveDialog->SetFileTypeIndex(count - 1U);
 				}
 
 				hRes = FileSaveDialog->Show(MainWindow::pWndObj->hMainWindow);
 
 				if (!SUCCEEDED(hRes))
-				{
-					CoUninitialize();
 					break;
-				}
-
-				CoUninitialize();
 			}
 			break;
 
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
+			{
+				CComPtr<IShellDispatch> ShellDispatch;
 
-				if (NativeShutdown::ShowShutdownDialog() != S_OK)
+				HRESULT hRes = ShellDispatch.CoCreateInstance
+				(
+					CLSID_Shell,
+					NULL,
+					CLSCTX_INPROC_SERVER
+				);
+
+				if (!SUCCEEDED(hRes))
 					break;
 
-				MainWindow::pWndObj->CloseWindow();
+				hRes = ShellDispatch->ShutdownWindows();
 
+				if (!SUCCEEDED(hRes))
+					break;
+			}
+
+				MainWindow::pWndObj->CloseWindow();
 			return 0;
 
 			case IDS_EXIT_POPUP_ITEM:

@@ -14,6 +14,4 @@
 #include <shldisp.h>
 #include <shobjidl.h>
 #include <atlbase.h>
-#include <wchar.h>
-#include <memory>
 #include <sstream>
