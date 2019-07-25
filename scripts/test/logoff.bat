@@ -1,2 +1,2 @@
 @echo off
-..\src\x64\Debug\Shutdown.exe L
+..\..\src\x64\Debug\Shutdown.exe L
