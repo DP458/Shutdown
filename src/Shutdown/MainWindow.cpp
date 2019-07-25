@@ -956,21 +956,17 @@ namespace MainWindow
 					break;
 
 				{
-					const UINT count = 2U;
-
-					COMDLG_FILTERSPEC file_types[count];
-					file_types[0].pszName = L"Plain text";
-					file_types[0].pszSpec = L"*.txt";
-					file_types[1].pszName = L"Plain text";
-					file_types[1].pszSpec = L"*.*";
+					COMDLG_FILTERSPEC file_type;
+					file_type.pszName = L"Plain text";
+					file_type.pszSpec = L"*.txt";
 
 					FileOpenDialog->SetFileTypes
 					(
-						count,
-						file_types
+						1,
+						&file_type
 					);
 
-					FileOpenDialog->SetFileTypeIndex(count - 1U);
+					FileOpenDialog->SetFileTypeIndex(1);
 				}
 
 				hRes = FileOpenDialog->Show(MainWindow::pWndObj->hMainWindow);
@@ -1014,6 +1010,11 @@ namespace MainWindow
 
 			case IDS_SAVE_POPUP_ITEM:
 			{
+				const int count = ListBox_GetCount(MainWindow::pWndObj->hComputersListBox);
+
+				if (count <= 0)
+					break;
+
 				CComPtr<IFileSaveDialog> FileSaveDialog;
 
 				HRESULT hRes = FileSaveDialog.CoCreateInstance
@@ -1027,27 +1028,66 @@ namespace MainWindow
 					break;
 
 				{
-					const UINT count = 2U;
-
-					COMDLG_FILTERSPEC file_types[count];
-					file_types[0].pszName = L"Plain text";
-					file_types[0].pszSpec = L"*.txt";
-					file_types[1].pszName = L"Plain text";
-					file_types[1].pszSpec = L"*.*";
+					COMDLG_FILTERSPEC file_type;
+					file_type.pszName = L"Plain text";
+					file_type.pszSpec = L"*.txt";
 
 					FileSaveDialog->SetFileTypes
 					(
-						count,
-						file_types
+						1,
+						&file_type
 					);
 
-					FileSaveDialog->SetFileTypeIndex(count - 1U);
+					FileSaveDialog->SetFileTypeIndex(1);
 				}
+
+				FileSaveDialog->SetDefaultExtension(L"txt");
 
 				hRes = FileSaveDialog->Show(MainWindow::pWndObj->hMainWindow);
 
 				if (!SUCCEEDED(hRes))
 					break;
+
+				std::wofstream ofs;
+
+				{
+					CComPtr<IShellItem> item;
+					FileSaveDialog->GetResult(&item);
+
+					PWSTR file_path;
+
+					item->GetDisplayName
+					(
+						SIGDN_FILESYSPATH,
+						&file_path
+					);
+
+					ofs.open(file_path);
+
+					CoTaskMemFree(file_path);
+				}
+
+				for (int i = 0; i < count; i++)
+				{
+					const int computer_name_length = ListBox_GetTextLen
+					(
+						MainWindow::pWndObj->hComputersListBox,
+						i
+					);
+
+					auto psComputerName = std::make_unique<wchar_t[]>(computer_name_length + 1);
+
+					ListBox_GetText
+					(
+						MainWindow::pWndObj->hComputersListBox,
+						i,
+						psComputerName.get()
+					);
+
+					ofs << psComputerName.get() << L"\n";
+				}
+
+				ofs.close();
 			}
 			break;
 
