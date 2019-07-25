@@ -95,21 +95,26 @@ namespace AddComputersDialogInternals
 
 	BOOL AddComputersDialogInternals::__AddComputersDialog::AddComputerName()
 	{
-
 		const int text_length = GetWindowTextLength(this->hComputerNameEdit);
 
 		if (text_length <= 0)
 			return FALSE;
 
-		wchar_t* computer_name = new wchar_t[text_length + 1];
+		auto psComputerName = std::make_unique<wchar_t[]>(text_length + 1);
 
-		GetWindowText(this->hComputerNameEdit, computer_name, text_length + 1);
+		GetWindowText
+		(
+			this->hComputerNameEdit,
+			psComputerName.get(),
+			text_length + 1
+		);
 
-		MainWindow::__MainWindow::GetInstance()->AddComputerName(computer_name);
+		MainWindow::__MainWindow::GetInstance()->AddComputerName
+		(
+			psComputerName.get()
+		);
 
-		delete[] computer_name;
 		return TRUE;
-
 	}
 
 	void AddComputersDialogInternals::__AddComputersDialog::CloseWindow()

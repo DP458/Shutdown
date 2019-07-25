@@ -31,7 +31,11 @@ namespace NativeShutdown
 	{
 		if
 		(
-			!NativeShutdown::SetShutdownPrivilege(lpMachineName, true)
+			!NativeShutdown::SetShutdownPrivilege
+			(
+				lpMachineName,
+				true
+			)
 		)
 			return FALSE;
 

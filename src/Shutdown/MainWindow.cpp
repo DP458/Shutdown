@@ -316,35 +316,27 @@ namespace MainWindow
 	*/
 	DWORD MainWindow::__MainWindow::GetTimerValue()
 	{
-
 		const int timer_length = GetWindowTextLength(this->hTimerEdit);
-		LPWSTR timer = nullptr;
 
-		try
-		{
-			timer = new WCHAR[timer_length + 1];
-		}
-
-		catch (...)
-		{
+		if (timer_length <= 0)
 			return ULONG_MAX;
-		}
+
+		auto psTimer = std::make_unique<wchar_t[]>(timer_length + 1);
 
 		GetWindowText
 		(
 			this->hTimerEdit,
-			timer,
+			psTimer.get(),
 			timer_length + 1
 		);
 
 		const DWORD timer_value = wcstoul
 		(
-			timer,
+			psTimer.get(),
 			(wchar_t**)NULL,
 			10
 		);
 
-		delete[] timer;
 		return timer_value;
 	}
 
@@ -448,50 +440,51 @@ namespace MainWindow
 	}
 
 	BOOL MainWindow::__MainWindow::StopShutdown(int listbox_index)
-	{		
-		LPWSTR computer_name = nullptr;
-
-		if (listbox_index >= 0)
+	{	
+		if (listbox_index < 0)
 		{
-			const int computer_name_length = ListBox_GetTextLen(this->hComputersListBox, listbox_index);
-
-			if (computer_name_length < 0)
-				return FALSE;
-
-			try
-			{
-				computer_name = new WCHAR[computer_name_length + 1];
-			}
-			catch (...)
-			{
-				return FALSE;
-			}
-
-			ListBox_GetText
+			if
 			(
-				this->hComputersListBox,
-				listbox_index,
-				computer_name
-			);
+				!NativeShutdown::SetShutdownPrivilege
+				(
+						(LPCWSTR)NULL,
+						true
+				)
+			)
+				return FALSE;
+
+			return AbortSystemShutdown((LPWSTR)NULL);
 		}
+
+		const int computer_name_length = ListBox_GetTextLen
+		(
+			this->hComputersListBox,
+			listbox_index
+		);
+
+		if (computer_name_length < 0)
+			return FALSE;
+
+		auto psComputerName = std::make_unique<wchar_t[]>(computer_name_length + 1);
+
+		ListBox_GetText
+		(
+			this->hComputersListBox,
+			listbox_index,
+			psComputerName.get()
+		);
 
 		if
 		(
 			!NativeShutdown::SetShutdownPrivilege
 			(
-				computer_name,
+				psComputerName.get(),
 				true
 			)
 		)
-		{
-			delete[] computer_name;
 			return FALSE;
-		}
 
-		const BOOL result = AbortSystemShutdown(computer_name);
-		
-		delete[] computer_name;
-		return result;
+		return AbortSystemShutdown(psComputerName.get());
 	}
 
 	void MainWindow::__MainWindow::ExecActionButtonClick()
@@ -1002,15 +995,6 @@ namespace MainWindow
 					ifs.open(file_path);
 
 					CoTaskMemFree(file_path);
-				}
-
-				if
-				(
-					ListBox_GetCount(MainWindow::pWndObj->hComputersListBox) > 0
-				)
-				{
-					ListBox_SetCurSel(MainWindow::pWndObj->hComputersListBox, -1);
-					ListBox_ResetContent(MainWindow::pWndObj->hComputersListBox);
 				}
 
 				while (!ifs.eof())
