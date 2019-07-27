@@ -30,6 +30,12 @@ namespace MainWindow
 			Fail
 		};
 
+		enum FileDialogType
+		{
+			Open,
+			Save
+		};
+
 		__MainWindow(HINSTANCE hInstance);
 		void InitMainWindow();
 		DWORD GetTimerValue();
@@ -40,6 +46,7 @@ namespace MainWindow
 		void UpdateStatusBarCaption(ShutdownStatus status);
 		void ClearComputerNames();
 		void CloseWindow();
+		BOOL OpenTextFileThroughDialog(FileDialogType type, std::wfstream& fs);
 		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	public:

@@ -749,6 +749,116 @@ namespace MainWindow
 		);
 	}
 
+	BOOL MainWindow::__MainWindow::OpenTextFileThroughDialog(MainWindow::__MainWindow::FileDialogType type, std::wfstream& fs)
+	{
+		CComPtr<IFileDialog> FileDialog;
+
+		{
+			HRESULT hRes;
+
+			switch (type)
+			{
+
+			case MainWindow::__MainWindow::FileDialogType::Open:
+				hRes = FileDialog.CoCreateInstance
+				(
+					CLSID_FileOpenDialog,
+					NULL,
+					CLSCTX_INPROC_SERVER
+				);
+			break;
+
+			case MainWindow::__MainWindow::FileDialogType::Save:
+				hRes = FileDialog.CoCreateInstance
+				(
+					CLSID_FileSaveDialog,
+					NULL,
+					CLSCTX_INPROC_SERVER
+				);
+			break;
+
+			default:
+			return FALSE;
+
+			}
+
+			if (!SUCCEEDED(hRes))
+				return FALSE;
+		}
+
+		{
+			COMDLG_FILTERSPEC file_type;
+			file_type.pszName = L"Plain text";
+			file_type.pszSpec = L"*.txt";
+
+			FileDialog->SetFileTypes
+			(
+				1,
+				&file_type
+			);
+
+			FileDialog->SetFileTypeIndex(1);
+		}
+
+		FileDialog->SetDefaultExtension(L"txt");
+
+		if
+		(
+			SUCCEEDED(FileDialog->Show(this->hMainWindow))
+		)
+		{
+			CComPtr<IShellItem> item;
+
+			if
+			(
+				!SUCCEEDED(FileDialog->GetResult(&item))
+			)
+				return FALSE;
+
+			PWSTR file_path;
+
+			if
+			(
+				!SUCCEEDED
+				(
+					item->GetDisplayName
+					(
+						SIGDN_FILESYSPATH,
+						&file_path
+					)
+				)
+			)
+				return FALSE;
+
+			switch (type)
+			{
+
+			case MainWindow::__MainWindow::FileDialogType::Open:
+				fs.open
+				(
+					file_path,
+					std::ios_base::in
+				);
+			break;
+
+			case MainWindow::__MainWindow::FileDialogType::Save:
+				fs.open
+				(
+					file_path,
+					std::ios_base::out
+				);
+			break;
+
+			}
+
+			CoTaskMemFree(file_path);
+
+			return !fs.fail();
+		}
+
+		return TRUE;
+	}
+
 	// Local
 
 	static MainWindow::__MainWindow* pWndObj = nullptr;
@@ -876,17 +986,19 @@ namespace MainWindow
 
 				case IDS_REMOVECOMPUTERS_BUTTON_TITLE:
 				{
+					const int index = ListBox_GetCurSel(MainWindow::pWndObj->hComputersListBox);
 
-					const auto index = ListBox_GetCurSel(MainWindow::pWndObj->hComputersListBox);
-
-					if (index != LB_ERR)
-						ListBox_DeleteString(MainWindow::pWndObj->hComputersListBox, index);
+					if (index < 0)
+						ListBox_DeleteString
+						(
+							MainWindow::pWndObj->hComputersListBox,
+							index
+						);
 
 					MainWindow::pWndObj->UpdateStatusBarCaption
 					(
 						ListBox_GetCount(MainWindow::pWndObj->hComputersListBox)
 					);
-
 				}
 				break;
 
@@ -943,68 +1055,54 @@ namespace MainWindow
 
 			case IDS_OPEN_POPUP_ITEM:
 			{
-				CComPtr<IFileOpenDialog> FileOpenDialog;
+				std::wfstream fs;
 
-				HRESULT hRes = FileOpenDialog.CoCreateInstance
+				if
 				(
-					CLSID_FileOpenDialog,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				);
-
-				if (!SUCCEEDED(hRes))
-					break;
-
-				{
-					COMDLG_FILTERSPEC file_type;
-					file_type.pszName = L"Plain text";
-					file_type.pszSpec = L"*.txt";
-
-					FileOpenDialog->SetFileTypes
+					!MainWindow::pWndObj->OpenTextFileThroughDialog
 					(
-						1,
-						&file_type
+						MainWindow::__MainWindow::FileDialogType::Open,
+						fs
+					)
+				)
+				{
+					TaskDialog
+					(
+						MainWindow::pWndObj->hMainWindow,
+						MainWindow::pWndObj->hMainInstance,
+						L"Error",
+						L"Failed to open text file",
+						(PCWSTR)NULL,
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
 					);
-
-					FileOpenDialog->SetFileTypeIndex(1);
+					break;
 				}
 
-				hRes = FileOpenDialog->Show(MainWindow::pWndObj->hMainWindow);
-
-				if (!SUCCEEDED(hRes))
+				if (!fs.is_open())
 					break;
 
-				std::wifstream ifs;
-
-				{
-					CComPtr<IShellItem> item;
-					FileOpenDialog->GetResult(&item);
-
-					PWSTR file_path;
-
-					item->GetDisplayName
-					(
-						SIGDN_FILESYSPATH,
-						&file_path
-					);
-
-					ifs.open(file_path);
-
-					CoTaskMemFree(file_path);
-				}
-
-				while (!ifs.eof())
+				while
+				(
+					(!fs.eof()) && (!fs.fail())
+				)
 				{
 					std::wstring str;
-					ifs >> str;
 
-					if (ifs.fail())
-						break;
+					std::getline
+					(
+						fs,
+						str
+					);
+
+					if (str.length() == 0)
+						continue;
 
 					MainWindow::pWndObj->AddComputerName(str.c_str());
 				}
 
-				ifs.close();
+				fs.close();
 			}
 			break;
 
@@ -1015,57 +1113,33 @@ namespace MainWindow
 				if (count <= 0)
 					break;
 
-				CComPtr<IFileSaveDialog> FileSaveDialog;
+				std::wfstream fs;
 
-				HRESULT hRes = FileSaveDialog.CoCreateInstance
+				if
 				(
-					CLSID_FileSaveDialog,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				);
-
-				if (!SUCCEEDED(hRes))
-					break;
-
-				{
-					COMDLG_FILTERSPEC file_type;
-					file_type.pszName = L"Plain text";
-					file_type.pszSpec = L"*.txt";
-
-					FileSaveDialog->SetFileTypes
+					!MainWindow::pWndObj->OpenTextFileThroughDialog
 					(
-						1,
-						&file_type
+						MainWindow::__MainWindow::FileDialogType::Save,
+						fs
+					)
+				)
+				{
+					TaskDialog
+					(
+						MainWindow::pWndObj->hMainWindow,
+						MainWindow::pWndObj->hMainInstance,
+						L"Error",
+						L"Failed to open text file",
+						(PCWSTR)NULL,
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
 					);
-
-					FileSaveDialog->SetFileTypeIndex(1);
+					break;
 				}
 
-				FileSaveDialog->SetDefaultExtension(L"txt");
-
-				hRes = FileSaveDialog->Show(MainWindow::pWndObj->hMainWindow);
-
-				if (!SUCCEEDED(hRes))
+				if (!fs.is_open())
 					break;
-
-				std::wofstream ofs;
-
-				{
-					CComPtr<IShellItem> item;
-					FileSaveDialog->GetResult(&item);
-
-					PWSTR file_path;
-
-					item->GetDisplayName
-					(
-						SIGDN_FILESYSPATH,
-						&file_path
-					);
-
-					ofs.open(file_path);
-
-					CoTaskMemFree(file_path);
-				}
 
 				for (int i = 0; i < count; i++)
 				{
@@ -1074,6 +1148,9 @@ namespace MainWindow
 						MainWindow::pWndObj->hComputersListBox,
 						i
 					);
+
+					if (computer_name_length <= 0)
+						continue;
 
 					auto psComputerName = std::make_unique<wchar_t[]>(computer_name_length + 1);
 
@@ -1084,10 +1161,13 @@ namespace MainWindow
 						psComputerName.get()
 					);
 
-					ofs << psComputerName.get() << L"\n";
+					fs << psComputerName.get();
+
+					if ((i + 1) < count)
+						fs << L"\n";
 				}
 
-				ofs.close();
+				fs.close();
 			}
 			break;
 
