@@ -859,6 +859,27 @@ namespace MainWindow
 		return TRUE;
 	}
 
+	BOOL MainWindow::__MainWindow::ShowShutdownDialog()
+	{
+		CComPtr<IShellDispatch> ShellDispatch;
+
+		if
+		(
+			!SUCCEEDED
+			(
+				ShellDispatch.CoCreateInstance
+				(
+					CLSID_Shell,
+					NULL,
+					CLSCTX_INPROC_SERVER
+				)
+			)
+		)
+			return FALSE;
+
+		return SUCCEEDED(ShellDispatch->ShutdownWindows());
+	}
+
 	// Local
 
 	static MainWindow::__MainWindow* pWndObj = nullptr;
@@ -1172,26 +1193,8 @@ namespace MainWindow
 			break;
 
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
-			{
-				CComPtr<IShellDispatch> ShellDispatch;
-
-				HRESULT hRes = ShellDispatch.CoCreateInstance
-				(
-					CLSID_Shell,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				);
-
-				if (!SUCCEEDED(hRes))
-					break;
-
-				hRes = ShellDispatch->ShutdownWindows();
-
-				if (!SUCCEEDED(hRes))
-					break;
-			}
-
-				MainWindow::pWndObj->CloseWindow();
+				if (MainWindow::pWndObj->ShowShutdownDialog())
+					MainWindow::pWndObj->CloseWindow();
 			return 0;
 
 			case IDS_EXIT_POPUP_ITEM:

@@ -47,6 +47,7 @@ namespace MainWindow
 		void ClearComputerNames();
 		void CloseWindow();
 		BOOL OpenTextFileThroughDialog(FileDialogType type, std::wfstream& fs);
+		BOOL ShowShutdownDialog();
 		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	public:
