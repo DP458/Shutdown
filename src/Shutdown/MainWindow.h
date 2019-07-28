@@ -26,7 +26,8 @@ namespace MainWindow
 		{
 			Ready,
 			Successful,
-			Fail
+			Fail,
+			Processing
 		};
 
 		enum FileDialogType
@@ -41,6 +42,8 @@ namespace MainWindow
 		DWORD GetTimerValue();
 		BOOL StartShutdown(int listbox_index, BOOL bRebootAfterShutdown);
 		BOOL StopShutdown(int listbox_index);
+		BOOL StartComputersShutdown(BOOL bRebootAfterShutdown);
+		BOOL StopComputersShutdown();
 		void ExecActionButtonClick();
 		void UpdateStatusBarCaption(int count);
 		void UpdateStatusBarCaption(ShutdownStatus status);

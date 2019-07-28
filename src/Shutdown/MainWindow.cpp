@@ -27,7 +27,7 @@ namespace MainWindow
 		wcex.cbWndExtra = 0;
 		wcex.hInstance = hInstance;
 		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-		wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
+		wcex.hCursor = (HCURSOR)NULL;
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wcex.lpszMenuName = NULL;
 		wcex.lpszClassName = STR_APP_CLASS;
@@ -541,14 +541,111 @@ namespace MainWindow
 		return AbortSystemShutdown(psComputerName.get());
 	}
 
+	BOOL MainWindow::__MainWindow::StartComputersShutdown(BOOL bRebootAfterShutdown)
+	{
+		const int count = ListBox_GetCount(this->hComputersListBox);
+
+		if (count < 0)
+			return FALSE;
+
+		if (count == 0)
+			return this->StartShutdown
+			(
+				-1,
+				bRebootAfterShutdown
+			);
+
+		bool result = true;
+
+		for (int i = 0; i < count; i++)
+			result = result && this->StartShutdown
+			(
+				i,
+				FALSE
+			);
+
+		return result;
+	}
+
+	BOOL MainWindow::__MainWindow::StopComputersShutdown()
+	{
+		const int count = ListBox_GetCount(this->hComputersListBox);
+
+		if (count < 0)
+			return FALSE;
+
+		if (count == 0)
+			return this->StopShutdown(-1);
+
+		bool result = true;
+
+		for (int i = 0; i < count; i++)
+			result = result && this->StopShutdown(i);
+
+		return result;
+	}
+
 	void MainWindow::__MainWindow::ExecActionButtonClick()
 	{
-		const int item_id = ComboBox_GetCurSel(this->hActionsComboBox);
-
-		switch (item_id)
+		switch (ComboBox_GetCurSel(this->hActionsComboBox))
 		{
 
+		case ID_ACTION_SHUTDOWN:
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_WAIT));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Processing);
+
+			if (!this->StartComputersShutdown(FALSE))
+			{
+				SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+				TaskDialog
+				(
+					this->hMainWindow,
+					this->hMainInstance,
+					L"Error",
+					L"Failed to shutdown one computer or more ones",
+					L"Possibly these computers are unavailable or this action has been restricted by administrator",
+					TDCBF_OK_BUTTON,
+					TD_ERROR_ICON,
+					(int*)NULL
+				);
+				break;
+			}
+
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+		break;
+
+		case ID_ACTION_REBOOT:
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_WAIT));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Processing);
+
+			if (!this->StartComputersShutdown(TRUE))
+			{
+				SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+				TaskDialog
+				(
+					this->hMainWindow,
+					this->hMainInstance,
+					L"Error",
+					L"Failed to reboot one computer or more ones",
+					L"Possibly these computers are unavailable or this action has been restricted by administrator",
+					TDCBF_OK_BUTTON,
+					TD_ERROR_ICON,
+					(int*)NULL
+				);
+				break;
+			}
+
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+		break;
+
 		case ID_ACTION_LOGOFF:
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_WAIT));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Processing);
+
 			if
 			(
 				!ExitWindowsEx
@@ -558,6 +655,8 @@ namespace MainWindow
 				)
 			)
 			{
+				SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
 				TaskDialog
 				(
 					this->hMainWindow,
@@ -569,16 +668,21 @@ namespace MainWindow
 					TD_ERROR_ICON,
 					(int*)NULL
 				);
-				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
-				return;
+				break;
 			}
 
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
 			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
-		return;
+		break;
 
 		case ID_ACTION_LOCK:
-			if(!LockWorkStation())
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_WAIT));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Processing);
+
+			if (!LockWorkStation())
 			{
+				SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
 				TaskDialog
 				(
 					this->hMainWindow,
@@ -590,118 +694,39 @@ namespace MainWindow
 					TD_ERROR_ICON,
 					(int*)NULL
 				);
-				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
-				return;
+				break;
 			}
 
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
 			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
 			this->CloseWindow();
 		return;
 
-		}
-
-		const int count = ListBox_GetCount(this->hComputersListBox);
-
-		switch (item_id)
-		{
-
-		case ID_ACTION_SHUTDOWN:
-			if (count == 0)
-			{
-				if
-				(
-					!this->StartShutdown
-					(
-						-1,
-						FALSE
-					)
-				)
-				{
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						L"Failed to shutdown current system",
-						L"Possibly this action has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
-					break;
-				}
-
-				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
-				break;
-			}
-
-			for (int i = 0; i < count; i++)
-				this->StartShutdown(i, FALSE);
-			break;
-
-		case ID_ACTION_REBOOT:
-			if (count == 0)
-			{
-				if
-				(
-					!this->StartShutdown
-					(
-						-1, 
-						TRUE
-					)
-				)
-				{
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						L"Failed to reboot current system",
-						L"Possibly this action has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
-					break;
-				}
-
-				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
-				break;
-			}
-
-			for (int i = 0; i < count; i++)
-				this->StartShutdown(i, TRUE);
-			break;
-
 		case ID_ACTION_CANCEL:
-			if (count == 0)
-			{
-				if (!this->StopShutdown(-1))
-				{
-					TaskDialog
-					(
-						this->hMainWindow,
-						this->hMainInstance,
-						L"Error",
-						L"Failed to reboot current system",
-						L"Possibly this action has been restricted by administrator",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-					this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
-					break;
-				}
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_WAIT));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Processing);
 
-				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+			if (!this->StopComputersShutdown())
+			{
+				SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+				this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Fail);
+				TaskDialog
+				(
+					this->hMainWindow,
+					this->hMainInstance,
+					L"Error",
+					L"Failed to cancel shutdown on one computer or more ones",
+					L"Possibly these computers are unavailable or this action has been restricted by administrator",
+					TDCBF_OK_BUTTON,
+					TD_ERROR_ICON,
+					(int*)NULL
+				);
 				break;
 			}
 
-			for (int i = 0; i < count; i++)
-				this->StopShutdown(i);
-			break;
+			SetCursor(LoadCursor((HINSTANCE)NULL, IDC_ARROW));
+			this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Successful);
+		break;
 
 		}
 	}
@@ -741,7 +766,17 @@ namespace MainWindow
 				this->hStatusBar,
 				SB_SETTEXT,
 				(WPARAM)1,
-				(LPARAM)L"  Status:  Fail"
+				(LPARAM)L"  Status:  Failed"
+			);
+		break;
+
+		case ShutdownStatus::Processing:
+			SendMessage
+			(
+				this->hStatusBar,
+				SB_SETTEXT,
+				(WPARAM)1,
+				(LPARAM)L"  Status:  Processing"
 			);
 		break;
 
@@ -1067,18 +1102,18 @@ namespace MainWindow
 				{
 					const int index = ListBox_GetCurSel(MainWindow::pWndObj->hComputersListBox);
 
-					if (index < 0)
+					if (index >= 0)
 						ListBox_DeleteString
 						(
 							MainWindow::pWndObj->hComputersListBox,
 							index
 						);
+				}
 
 					MainWindow::pWndObj->UpdateStatusBarCaption
 					(
 						ListBox_GetCount(MainWindow::pWndObj->hComputersListBox)
 					);
-				}
 				break;
 
 				case IDS_CLEARCOMPUTERS_BUTTON_TITLE:
