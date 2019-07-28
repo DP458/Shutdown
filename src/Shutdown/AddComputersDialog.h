@@ -9,7 +9,6 @@ namespace AddComputersDialogInternals
 	private:
 		HINSTANCE hMainInstance;
 		HWND hOwnerWindow;
-		BOOL bIsClassRegistered;
 		HWND hDialogWindow;
 		HWND hComputerNameEdit;
 		HWND hAddButton;

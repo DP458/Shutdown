@@ -8,7 +8,6 @@ namespace MainWindow
 
 	private:
 		HINSTANCE hMainInstance;
-		BOOL bIsClassRegistered;
 		HWND hMainWindow;
 		HWND hActionsComboBox;
 		HWND hExecActionButton;

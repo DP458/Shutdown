@@ -12,16 +12,31 @@ namespace AddComputersDialogInternals
 
 	// Private
 
-	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) : 
-		hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), bIsClassRegistered(FALSE), hDialogWindow(NULL), hComputerNameEdit(NULL),
-		hAddButton(NULL), hCancelButton(NULL)
+	AddComputersDialogInternals::__AddComputersDialog::__AddComputersDialog(HINSTANCE hInstance, HWND hOwnerWnd) :
+		hMainInstance(hInstance), hOwnerWindow(hOwnerWnd), hDialogWindow(NULL), hComputerNameEdit(NULL), hAddButton(NULL),
+		hCancelButton(NULL)
 	{
+		WNDCLASSEX wcex = { 0 };
 
+		wcex.cbSize = sizeof(WNDCLASSEX);
+
+		wcex.style = CS_HREDRAW | CS_VREDRAW;
+		wcex.lpfnWndProc = AddComputersDialogInternals::WndProc;
+		wcex.cbClsExtra = 0;
+		wcex.cbWndExtra = DLGWINDOWEXTRA;
+		wcex.hInstance = hInstance;
+		wcex.hIcon = (HICON)NULL;
+		wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
+		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wcex.lpszMenuName = NULL;
+		wcex.lpszClassName = STR_ADDCOMPUTERS_DIALOG_CLASS;
+		wcex.hIconSm = (HICON)NULL;
+
+		RegisterClassEx(&wcex);
 	}
 
 	void AddComputersDialogInternals::__AddComputersDialog::InitDialogWindow()
 	{
-
 		CreateWindowEx
 		(
 			(DWORD)NULL,
@@ -90,7 +105,6 @@ namespace AddComputersDialogInternals
 			this->hMainInstance,
 			(LPVOID)NULL
 		);
-
 	}
 
 	BOOL AddComputersDialogInternals::__AddComputersDialog::AddComputerName()
@@ -100,7 +114,7 @@ namespace AddComputersDialogInternals
 		if (text_length <= 0)
 			return FALSE;
 
-		auto psComputerName = std::make_unique<wchar_t[]>(text_length + 1);
+		auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(text_length) + 1);
 
 		GetWindowText
 		(
@@ -134,7 +148,6 @@ namespace AddComputersDialogInternals
 
 	LRESULT CALLBACK AddComputersDialogInternals::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-
 		switch (message)
 		{
 
@@ -180,43 +193,15 @@ namespace AddComputersDialogInternals
 		}
 
 		return DefWindowProc(hWnd, message, wParam, lParam);
-
 	}
 
 	// Public
 
 	BOOL AddComputersDialogInternals::__AddComputersDialog::ShowDialog(HINSTANCE hInstance, HWND hOwnerWnd)
 	{
-
 		static __AddComputersDialog DlgInternalObj(hInstance, hOwnerWnd);
 
 		AddComputersDialogInternals::pDlgObj = &DlgInternalObj;
-
-		if (!DlgInternalObj.bIsClassRegistered)
-		{
-
-			WNDCLASSEX wcex = { 0 };
-
-			wcex.cbSize = sizeof(WNDCLASSEX);
-
-			wcex.style = CS_HREDRAW | CS_VREDRAW;
-			wcex.lpfnWndProc = AddComputersDialogInternals::WndProc;
-			wcex.cbClsExtra = 0;
-			wcex.cbWndExtra = DLGWINDOWEXTRA;
-			wcex.hInstance = hInstance;
-			wcex.hIcon = (HICON)NULL;
-			wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
-			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-			wcex.lpszMenuName = NULL;
-			wcex.lpszClassName = STR_ADDCOMPUTERS_DIALOG_CLASS;
-			wcex.hIconSm = (HICON)NULL;
-
-			DlgInternalObj.bIsClassRegistered = RegisterClassEx(&wcex);
-
-			if (!DlgInternalObj.bIsClassRegistered)
-				return FALSE;
-
-		}
 
 		DlgInternalObj.hDialogWindow = CreateWindowEx
 		(
@@ -240,7 +225,6 @@ namespace AddComputersDialogInternals
 		DlgInternalObj.InitDialogWindow();
 		EnableWindow(hOwnerWnd, FALSE);
 		return TRUE;
-
 	}
 
 }

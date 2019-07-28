@@ -13,10 +13,27 @@ namespace MainWindow
 	// Private
 
 	MainWindow::__MainWindow::__MainWindow(HINSTANCE hInstance) :
-		hMainInstance(hInstance), bIsClassRegistered(FALSE), hMainWindow(NULL), hActionsComboBox(NULL), hExecActionButton(NULL),
-		hComputersListBox(NULL), hAddComputersButton(NULL), hRemoveComputersButton(NULL), hClearComputersButton(NULL), hTimerEdit(NULL),
-		hDefTimerButton(NULL), hForceCheckBox(NULL), hPlannedCheckBox(NULL), hMessageEdit(NULL), hStatusBar(NULL)
+		hMainInstance(hInstance), hMainWindow(NULL), hActionsComboBox(NULL), hExecActionButton(NULL), hComputersListBox(NULL),
+		hAddComputersButton(NULL), hRemoveComputersButton(NULL), hClearComputersButton(NULL), hTimerEdit(NULL), hDefTimerButton(NULL),
+		hForceCheckBox(NULL), hPlannedCheckBox(NULL), hMessageEdit(NULL), hStatusBar(NULL)
 	{
+		WNDCLASSEX wcex = { 0 };
+
+		wcex.cbSize = sizeof(WNDCLASSEX);
+
+		wcex.style = CS_HREDRAW | CS_VREDRAW;
+		wcex.lpfnWndProc = MainWindow::WndProc;
+		wcex.cbClsExtra = 0;
+		wcex.cbWndExtra = 0;
+		wcex.hInstance = hInstance;
+		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+		wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
+		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+		wcex.lpszMenuName = NULL;
+		wcex.lpszClassName = STR_APP_CLASS;
+		wcex.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+
+		RegisterClassEx(&wcex);
 	}
 
 	void MainWindow::__MainWindow::InitMainWindow()
@@ -376,7 +393,7 @@ namespace MainWindow
 		if (timer_length <= 0)
 			return ULONG_MAX;
 
-		auto psTimer = std::make_unique<wchar_t[]>(timer_length + 1);
+		auto psTimer = std::make_unique<wchar_t[]>(static_cast<size_t>(timer_length) + 1);
 
 		GetWindowText
 		(
@@ -408,7 +425,7 @@ namespace MainWindow
 
 			try
 			{
-				computer_name = new WCHAR[computer_name_length + 1];
+				computer_name = new WCHAR[static_cast<size_t>(computer_name_length) + 1];
 			}
 			catch (...)
 			{
@@ -438,7 +455,7 @@ namespace MainWindow
 			{
 				try
 				{
-					message = new WCHAR[msg_length + 1];
+					message = new WCHAR[static_cast<size_t>(msg_length) + 1];
 				}
 				catch (...)
 				{
@@ -506,7 +523,7 @@ namespace MainWindow
 		if (computer_name_length < 0)
 			return FALSE;
 
-		auto psComputerName = std::make_unique<wchar_t[]>(computer_name_length + 1);
+		auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(computer_name_length) + 1);
 
 		ListBox_GetText
 		(
@@ -1214,7 +1231,7 @@ namespace MainWindow
 					if (computer_name_length <= 0)
 						continue;
 
-					auto psComputerName = std::make_unique<wchar_t[]>(computer_name_length + 1);
+					auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(computer_name_length) + 1);
 
 					ListBox_GetText
 					(
@@ -1293,39 +1310,11 @@ namespace MainWindow
 
 	BOOL MainWindow::__MainWindow::ShowDialog(HINSTANCE hInstance)
 	{
-
 		static __MainWindow WndInternalObj(hInstance);
 
 		MainWindow::pWndObj = &WndInternalObj;
 
-		if (!WndInternalObj.bIsClassRegistered)
-		{
-
-			WNDCLASSEX wcex = { 0 };
-
-			wcex.cbSize = sizeof(WNDCLASSEX);
-
-			wcex.style = CS_HREDRAW | CS_VREDRAW;
-			wcex.lpfnWndProc = MainWindow::WndProc;
-			wcex.cbClsExtra = 0;
-			wcex.cbWndExtra = 0;
-			wcex.hInstance = hInstance;
-			wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-			wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
-			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-			wcex.lpszMenuName = NULL;
-			wcex.lpszClassName = STR_APP_CLASS;
-			wcex.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-
-			WndInternalObj.bIsClassRegistered = RegisterClassEx(&wcex);
-
-			if (!WndInternalObj.bIsClassRegistered)
-				return FALSE;
-
-		}
-
 		HMENU hFilePopupMenu = CreatePopupMenu();
-
 		AppendMenu
 		(
 			hFilePopupMenu,
