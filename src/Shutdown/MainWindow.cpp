@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "Resources.h"
-#include "NativeShutdown.h"
 #include "MainWindow.h"
 #include "AddComputersDialog.h"
 
@@ -309,6 +308,62 @@ namespace MainWindow
 		this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Ready);
 	}
 
+	BOOL MainWindow::__MainWindow::SetShutdownPrivilege(LPWSTR lpMachineName)
+	{
+		HANDLE hToken;
+
+		if
+		(
+			!OpenProcessToken
+			(
+				GetCurrentProcess(),
+				TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+				&hToken
+			)
+		)
+			return FALSE;
+
+		TOKEN_PRIVILEGES tp;
+		tp.PrivilegeCount = 1;
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+		if
+		(
+			!LookupPrivilegeValue
+			(
+				lpMachineName,
+				SE_SHUTDOWN_NAME,
+				&(tp.Privileges[0].Luid)
+			)
+		)
+		{
+			CloseHandle(hToken);
+			return FALSE;
+		}
+
+		if
+		(
+			!AdjustTokenPrivileges
+			(
+				hToken,
+				FALSE,
+				&tp,
+				sizeof(TOKEN_PRIVILEGES),
+				(PTOKEN_PRIVILEGES)NULL,
+				(PDWORD)NULL
+			)
+		)
+		{
+			CloseHandle(hToken);
+			return FALSE;
+		}
+
+		const BOOL result = (GetLastError() != ERROR_NOT_ALL_ASSIGNED);
+
+		CloseHandle(hToken);
+		return result;
+	}
+
 	/*
 	Function GetTimerValue()
 	Returns DWORD value from Timer edit box
@@ -368,14 +423,7 @@ namespace MainWindow
 			);
 		}
 
-		if
-		(
-			!NativeShutdown::SetShutdownPrivilege
-			(
-				computer_name,
-				true
-			)
-		)
+		if (!this->SetShutdownPrivilege(computer_name))
 		{	
 			delete[] computer_name;
 			return FALSE;
@@ -443,14 +491,7 @@ namespace MainWindow
 	{	
 		if (listbox_index < 0)
 		{
-			if
-			(
-				!NativeShutdown::SetShutdownPrivilege
-				(
-						(LPCWSTR)NULL,
-						true
-				)
-			)
+			if(!this->SetShutdownPrivilege((LPWSTR)NULL))
 				return FALSE;
 
 			return AbortSystemShutdown((LPWSTR)NULL);
@@ -476,11 +517,7 @@ namespace MainWindow
 
 		if
 		(
-			!NativeShutdown::SetShutdownPrivilege
-			(
-				psComputerName.get(),
-				true
-			)
+			!this->SetShutdownPrivilege(psComputerName.get())
 		)
 			return FALSE;
 
@@ -489,7 +526,6 @@ namespace MainWindow
 
 	void MainWindow::__MainWindow::ExecActionButtonClick()
 	{
-
 		const int item_id = ComboBox_GetCurSel(this->hActionsComboBox);
 
 		switch (item_id)
@@ -498,7 +534,11 @@ namespace MainWindow
 		case ID_ACTION_LOGOFF:
 			if
 			(
-				!NativeShutdown::UserLogOff()
+				!ExitWindowsEx
+				(
+					EWX_LOGOFF,
+					SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER | SHTDN_REASON_FLAG_PLANNED
+				)
 			)
 			{
 				TaskDialog
@@ -520,10 +560,7 @@ namespace MainWindow
 		return;
 
 		case ID_ACTION_LOCK:
-			if
-			(
-				!NativeShutdown::UserLock()
-			)
+			if(!LockWorkStation())
 			{
 				TaskDialog
 				(
@@ -556,7 +593,11 @@ namespace MainWindow
 			{
 				if
 				(
-					!this->StartShutdown(-1, FALSE)
+					!this->StartShutdown
+					(
+						-1,
+						FALSE
+					)
 				)
 				{
 					TaskDialog
@@ -587,7 +628,11 @@ namespace MainWindow
 			{
 				if
 				(
-					!this->StartShutdown(-1, TRUE)
+					!this->StartShutdown
+					(
+						-1, 
+						TRUE
+					)
 				)
 				{
 					TaskDialog
@@ -616,10 +661,7 @@ namespace MainWindow
 		case ID_ACTION_CANCEL:
 			if (count == 0)
 			{
-				if
-				(
-					!this->StopShutdown(-1)
-				)
+				if (!this->StopShutdown(-1))
 				{
 					TaskDialog
 					(
@@ -645,7 +687,6 @@ namespace MainWindow
 			break;
 
 		}
-
 	}
 
 	void MainWindow::__MainWindow::UpdateStatusBarCaption(int count)

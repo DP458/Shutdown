@@ -8,38 +8,70 @@
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
+
+	// Processing of command line args
+
 	switch (lpCmdLine[0])
 	{
 
 	// Canceling shutdown or rebooting
 
 	case L'A':
-		return NativeShutdown::StopShutdown((LPWSTR)NULL) ? 0 : -1;
+		if (!NativeShutdown::SetShutdownPrivilege())
+			return TRUE;
+
+	return !AbortSystemShutdown((LPWSTR)NULL);
 
 	// Shutdown Windows Dialog
 
 	case L'D':
-		return (NativeShutdown::ShowShutdownDialog() != S_OK) ? -1 : 0;
+	return !NativeShutdown::ShowShutdownDialog();
 
 	// Shutdown
 
 	case L'S':
-		return NativeShutdown::StartShutdown(FALSE) ? 0 : -1;
+		if (!NativeShutdown::SetShutdownPrivilege())
+			return TRUE;
+
+	return !InitiateSystemShutdownEx
+	(
+		(LPWSTR)NULL,
+		(LPWSTR)NULL,
+		(DWORD)0,
+		FALSE,
+		FALSE,
+		SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER | SHTDN_REASON_FLAG_PLANNED
+	);
 
 	// Rebooting
 
 	case L'R':
-		return NativeShutdown::StartShutdown(TRUE) ? 0 : -1;
+		if (!NativeShutdown::SetShutdownPrivilege())
+			return TRUE;
+
+	return !InitiateSystemShutdownEx
+	(
+		(LPWSTR)NULL,
+		(LPWSTR)NULL,
+		(DWORD)0,
+		FALSE,
+		TRUE,
+		SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER | SHTDN_REASON_FLAG_PLANNED
+	);
 
 	// Logging off
 
 	case L'L':
-		return NativeShutdown::UserLogOff() ? 0 : -1;
+	return !ExitWindowsEx
+	(
+		EWX_LOGOFF,
+		SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER | SHTDN_REASON_FLAG_PLANNED
+	);
 
 	// Locking
 
 	case L'l':
-		return NativeShutdown::UserLock() ? 0 : -1;
+	return !LockWorkStation();
 
 	}
 
@@ -68,7 +100,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TD_ERROR_ICON,
 			(int*)NULL
 		);
-		return -1;
+		return TRUE;
 	}
 
 	BOOL bRet = FALSE;

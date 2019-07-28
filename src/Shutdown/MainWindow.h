@@ -38,6 +38,7 @@ namespace MainWindow
 
 		__MainWindow(HINSTANCE hInstance);
 		void InitMainWindow();
+		BOOL SetShutdownPrivilege(LPWSTR lpMachineName);
 		DWORD GetTimerValue();
 		BOOL StartShutdown(int listbox_index, BOOL bRebootAfterShutdown);
 		BOOL StopShutdown(int listbox_index);
