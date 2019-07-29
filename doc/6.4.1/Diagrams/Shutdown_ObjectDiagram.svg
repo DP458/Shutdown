@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="564.29688"
+   height="303"
+   id="svg306"
+   sodipodi:docname="Shutdown_ObjectDiagram.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata310">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     id="namedview308"
+     showgrid="false"
+     inkscape:zoom="1.0153957"
+     inkscape:cx="317.04194"
+     inkscape:cy="148.77004"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g304" />
+  <defs
+     id="defs2" />
+  <g
+     id="g304">
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g72">
+      <rect
+         x="19.619141"
+         y="31"
+         width="266.2168"
+         height="237"
+         id="rect70"
+         style="opacity:0.2;fill:#c0c0c0;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g76">
+      <rect
+         x="12.619141"
+         y="24"
+         width="266.2168"
+         height="237"
+         id="rect74"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g80">
+      <path
+         d="M 12.619141,24 H 278.83594 V 261 H 12.619141 Z"
+         stroke-miterlimit="10"
+         id="path78"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g84">
+      <rect
+         x="12.619141"
+         y="24"
+         width="266.2168"
+         height="237"
+         id="rect82"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g88">
+      <path
+         d="M 12.619141,24 H 278.83594 V 261 H 12.619141 Z"
+         stroke-miterlimit="10"
+         id="path86"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g92">
+      <path
+         d="M 12.619141,56 H 278.83594"
+         stroke-miterlimit="10"
+         id="path90"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g102">
+      <g
+         id="g100">
+        <path
+           id="path94"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="bold"
+           text-decoration="none"
+           x="30.15625"
+           y="50.5"
+           id="text96"
+           style="font-style:normal;font-weight:bold;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">MainWindow: MainWindow</text>
+        <path
+           d="M 268.99902,50.5 H 22.456055"
+           stroke-miterlimit="10"
+           id="path98"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g110">
+      <g
+         id="g108">
+        <path
+           id="path104"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="80.5"
+           id="text106"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-bHasShutdownPrivileg: BOOL</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g118">
+      <g
+         id="g116">
+        <path
+           id="path112"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="102.5"
+           id="text114"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hMainWindowClass: ATOM</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g126">
+      <g
+         id="g124">
+        <path
+           id="path120"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="124.5"
+           id="text122"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hMainWindow: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g134">
+      <g
+         id="g132">
+        <path
+           id="path128"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="146.5"
+           id="text130"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hActionsComboBox: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g142">
+      <g
+         id="g140">
+        <path
+           id="path136"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="168.5"
+           id="text138"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hExecActionButton: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g150">
+      <g
+         id="g148">
+        <path
+           id="path144"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="190.5"
+           id="text146"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hTimerEdit: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g158">
+      <g
+         id="g156">
+        <path
+           id="path152"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="212.5"
+           id="text154"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hDefTimerButton: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g166">
+      <g
+         id="g164">
+        <path
+           id="path160"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="234.5"
+           id="text162"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hForceCheckBox: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g174">
+      <g
+         id="g172">
+        <path
+           id="path168"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="17.619141"
+           y="256.5"
+           id="text170"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">-hMessageEdit: HWND</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g178">
+      <rect
+         x="439"
+         y="23"
+         width="91.929688"
+         height="51"
+         id="rect176"
+         style="opacity:0.2;fill:#c0c0c0;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g182">
+      <rect
+         x="432"
+         y="16"
+         width="91.929688"
+         height="51"
+         id="rect180"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g186">
+      <path
+         d="m 432,16 h 91.92969 V 67 H 432 Z"
+         stroke-miterlimit="10"
+         id="path184"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g190">
+      <rect
+         x="432"
+         y="16"
+         width="91.929688"
+         height="51"
+         id="rect188"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g194">
+      <path
+         d="m 432,16 h 91.92969 V 67 H 432 Z"
+         stroke-miterlimit="10"
+         id="path192"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g208">
+      <g
+         id="g206">
+        <path
+           id="path196"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="bold"
+           text-decoration="none"
+           x="440.74805"
+           y="42.5"
+           id="text198"
+           style="font-style:normal;font-weight:bold;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">Program:</text>
+        <path
+           d="M 519.42969,42.5 H 436.5"
+           stroke-miterlimit="10"
+           id="path200"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="bold"
+           text-decoration="none"
+           x="443.52637"
+           y="62.5"
+           id="text202"
+           style="font-style:normal;font-weight:bold;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">Program</text>
+        <path
+           d="M 516.09961,62.5 H 439.83008"
+           stroke-miterlimit="10"
+           id="path204"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g212">
+      <path
+         d="M 431,55 280,101"
+         stroke-miterlimit="10"
+         id="path210"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g220">
+      <g
+         id="g218">
+        <path
+           id="path214"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="400.5"
+           y="58.5"
+           id="text216"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g228">
+      <g
+         id="g226">
+        <path
+           id="path222"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="291.5"
+           y="91.5"
+           id="text224"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g232">
+      <rect
+         x="407"
+         y="255"
+         width="157.91602"
+         height="51"
+         id="rect230"
+         style="opacity:0.2;fill:#c0c0c0;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g236">
+      <rect
+         x="400"
+         y="248"
+         width="157.91602"
+         height="51"
+         id="rect234"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g240">
+      <path
+         d="m 400,248 h 157.91602 v 51 H 400 Z"
+         stroke-miterlimit="10"
+         id="path238"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g244">
+      <rect
+         x="400"
+         y="248"
+         width="157.91602"
+         height="51"
+         id="rect242"
+         style="fill:#ffffff;stroke:none" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g248">
+      <path
+         d="m 400,248 h 157.91602 v 51 H 400 Z"
+         stroke-miterlimit="10"
+         id="path246"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g262">
+      <g
+         id="g260">
+        <path
+           id="path250"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="bold"
+           text-decoration="none"
+           x="408.96289"
+           y="274.5"
+           id="text252"
+           style="font-style:normal;font-weight:bold;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">NativeShutdown:</text>
+        <path
+           d="M 553.41602,274.5 H 404.5"
+           stroke-miterlimit="10"
+           id="path254"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="bold"
+           text-decoration="none"
+           x="411.74121"
+           y="294.5"
+           id="text256"
+           style="font-style:normal;font-weight:bold;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">NativeShutdown</text>
+        <path
+           d="M 550.08594,294.5 H 407.83008"
+           stroke-miterlimit="10"
+           id="path258"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g266">
+      <path
+         d="m 477,68 1,179"
+         stroke-miterlimit="10"
+         id="path264"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g274">
+      <g
+         id="g272">
+        <path
+           id="path268"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="485.5"
+           y="96.5"
+           id="text270"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g282">
+      <g
+         id="g280">
+        <path
+           id="path276"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="485.5"
+           y="232.5"
+           id="text278"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g286">
+      <path
+         d="m 280,195 132,52"
+         stroke-miterlimit="10"
+         id="path284"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g294">
+      <g
+         id="g292">
+        <path
+           id="path288"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="289.5"
+           y="189.5"
+           id="text290"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+    <g
+       transform="translate(-2.6191406,-6)"
+       id="g302">
+      <g
+         id="g300">
+        <path
+           id="path296"
+           d=""
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:none" />
+        <text
+           font-size="20px"
+           font-style="normal"
+           font-weight="normal"
+           text-decoration="none"
+           x="403.5"
+           y="233.5"
+           id="text298"
+           style="font-style:normal;font-weight:normal;font-size:20px;font-family:'Times New Roman';text-decoration:none;text-decoration-line:none;fill:#000000;stroke:none">1</text>
+      </g>
+    </g>
+  </g>
+</svg>
