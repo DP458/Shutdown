@@ -1,10 +1,7 @@
 # Shutdown
-The Shutdown app is a graphical app that written in C++ with using WinAPI and allows to shutdown a local host or remote ones.
+The Shutdown app is an graphical app that written in C++ with using WinAPI and allows to shutdown a local host or remote ones. For details, see [Wiki](https://github.com/DP458/Shutdown/wiki).
 
 ![Shutdow Screenshot](doc/Screenshots/ShutdownScreenshot.png)
-
-## System Requirements
-The app is compatible with Windows 7 and can be work on higher Windows versions including Windows 10.
 
 ## Building
 There are 2 variants:
