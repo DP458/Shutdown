@@ -30,15 +30,8 @@ namespace MainWindow
 			Processing
 		};
 
-		enum FileDialogType
-		{
-			Open,
-			Save
-		};
-
 		__MainWindow(HINSTANCE hInstance);
 		void InitMainWindow();
-		BOOL SetShutdownPrivilege(LPWSTR lpMachineName);
 		DWORD GetTimerValue();
 		BOOL StartShutdown(int listbox_index, BOOL bRebootAfterShutdown);
 		BOOL StopShutdown(int listbox_index);
@@ -49,8 +42,6 @@ namespace MainWindow
 		void UpdateStatusBarCaption(ShutdownStatus status);
 		void ClearComputerNames();
 		void CloseWindow();
-		BOOL OpenTextFileThroughDialog(FileDialogType type, std::wfstream& fs);
-		BOOL ShowShutdownDialog();
 		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	public:

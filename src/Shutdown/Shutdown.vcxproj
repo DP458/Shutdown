@@ -145,8 +145,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AddComputersDialog.cpp" />
+    <ClCompile Include="com_api.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="NativeShutdown.cpp" />
+    <ClCompile Include="win_api.cpp" />
     <ClCompile Include="Shutdown.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -167,8 +168,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddComputersDialog.h" />
+    <ClInclude Include="com_api.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="NativeShutdown.h" />
+    <ClInclude Include="win_api.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

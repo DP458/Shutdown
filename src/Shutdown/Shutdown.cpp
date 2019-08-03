@@ -3,7 +3,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "stdafx.h"
-#include "NativeShutdown.h"
+#include "win_api.h"
+#include "com_api.h"
 #include "MainWindow.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -17,7 +18,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Canceling shutdown or rebooting
 
 	case L'A':
-		if (!NativeShutdown::SetShutdownPrivilege())
+		if
+		(
+			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+		)
 			return TRUE;
 
 	return !AbortSystemShutdown((LPWSTR)NULL);
@@ -25,12 +29,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Shutdown Windows Dialog
 
 	case L'D':
-	return !NativeShutdown::ShowShutdownDialog();
+	return !com_api::ShowShutdownDialog();
 
 	// Shutdown
 
 	case L'S':
-		if (!NativeShutdown::SetShutdownPrivilege())
+		if
+		(
+			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+		)
 			return TRUE;
 
 	return !InitiateSystemShutdownEx
@@ -46,7 +53,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Rebooting
 
 	case L'R':
-		if (!NativeShutdown::SetShutdownPrivilege())
+		if
+		(
+			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+		)
 			return TRUE;
 
 	return !InitiateSystemShutdownEx
@@ -76,16 +86,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 
 	//
-
-	{
-		const HRESULT hRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-		if
-		(
-			(hRes != S_OK) && (hRes != S_FALSE)
-		)
-			return -1;
-	}
 
 	if (!MainWindow::__MainWindow::ShowDialog(hInstance))
 	{
@@ -124,6 +124,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		DispatchMessage(&msg);
 	}
 
-	CoUninitialize();
 	return (int)msg.wParam;
 }

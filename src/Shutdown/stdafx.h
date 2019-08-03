@@ -11,10 +11,6 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <CommCtrl.h>
-#include <shldisp.h>
-#include <shobjidl.h>
-#include <atlbase.h>
-#include <string>
 #include <sstream>
 #include <fstream>
 #include <memory>

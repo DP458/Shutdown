@@ -6,8 +6,8 @@
 #define IDI_ICON4 4
 #define IDI_ICON5 5
 
-#define APP_VERSION 7,6,0,0
-#define STR_APP_VERSION L"7.6.0.0"
+#define APP_VERSION 7,6,1,0
+#define STR_APP_VERSION L"7.6.1.0"
 #define STR_APP_DESCRIPTION L"Graphical app to shutdown local host or remote ones"
 #define STR_APP_NAME L"Shutdown Windows"
 #define STR_APP_EXE_NAME L"Shutdown.exe"

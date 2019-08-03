@@ -4,6 +4,8 @@
 
 #include "stdafx.h"
 #include "Resources.h"
+#include "win_api.h"
+#include "com_api.h"
 #include "MainWindow.h"
 #include "AddComputersDialog.h"
 
@@ -325,62 +327,6 @@ namespace MainWindow
 		this->UpdateStatusBarCaption(MainWindow::__MainWindow::ShutdownStatus::Ready);
 	}
 
-	BOOL MainWindow::__MainWindow::SetShutdownPrivilege(LPWSTR lpMachineName)
-	{
-		HANDLE hToken;
-
-		if
-		(
-			!OpenProcessToken
-			(
-				GetCurrentProcess(),
-				TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-				&hToken
-			)
-		)
-			return FALSE;
-
-		TOKEN_PRIVILEGES tp;
-		tp.PrivilegeCount = 1;
-		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-		if
-		(
-			!LookupPrivilegeValue
-			(
-				lpMachineName,
-				SE_SHUTDOWN_NAME,
-				&(tp.Privileges[0].Luid)
-			)
-		)
-		{
-			CloseHandle(hToken);
-			return FALSE;
-		}
-
-		if
-		(
-			!AdjustTokenPrivileges
-			(
-				hToken,
-				FALSE,
-				&tp,
-				sizeof(TOKEN_PRIVILEGES),
-				(PTOKEN_PRIVILEGES)NULL,
-				(PDWORD)NULL
-			)
-		)
-		{
-			CloseHandle(hToken);
-			return FALSE;
-		}
-
-		const BOOL result = (GetLastError() != ERROR_NOT_ALL_ASSIGNED);
-
-		CloseHandle(hToken);
-		return result;
-	}
-
 	/*
 	Function GetTimerValue()
 	Returns DWORD value from Timer edit box
@@ -440,7 +386,10 @@ namespace MainWindow
 			);
 		}
 
-		if (!this->SetShutdownPrivilege(computer_name))
+		if
+		(
+			!win_api::SetShutdownPrivilege(computer_name)
+		)
 		{	
 			delete[] computer_name;
 			return FALSE;
@@ -508,7 +457,10 @@ namespace MainWindow
 	{	
 		if (listbox_index < 0)
 		{
-			if(!this->SetShutdownPrivilege((LPWSTR)NULL))
+			if
+			(
+				!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			)
 				return FALSE;
 
 			return AbortSystemShutdown((LPWSTR)NULL);
@@ -534,7 +486,7 @@ namespace MainWindow
 
 		if
 		(
-			!this->SetShutdownPrivilege(psComputerName.get())
+			!win_api::SetShutdownPrivilege(psComputerName.get())
 		)
 			return FALSE;
 
@@ -842,137 +794,6 @@ namespace MainWindow
 		);
 	}
 
-	BOOL MainWindow::__MainWindow::OpenTextFileThroughDialog(MainWindow::__MainWindow::FileDialogType type, std::wfstream& fs)
-	{
-		CComPtr<IFileDialog> FileDialog;
-
-		{
-			HRESULT hRes;
-
-			switch (type)
-			{
-
-			case MainWindow::__MainWindow::FileDialogType::Open:
-				hRes = FileDialog.CoCreateInstance
-				(
-					CLSID_FileOpenDialog,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				);
-			break;
-
-			case MainWindow::__MainWindow::FileDialogType::Save:
-				hRes = FileDialog.CoCreateInstance
-				(
-					CLSID_FileSaveDialog,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				);
-			break;
-
-			default:
-			return FALSE;
-
-			}
-
-			if (!SUCCEEDED(hRes))
-				return FALSE;
-		}
-
-		{
-			COMDLG_FILTERSPEC file_type;
-			file_type.pszName = L"Plain text";
-			file_type.pszSpec = L"*.txt";
-
-			FileDialog->SetFileTypes
-			(
-				1,
-				&file_type
-			);
-
-			FileDialog->SetFileTypeIndex(1);
-		}
-
-		FileDialog->SetDefaultExtension(L"txt");
-
-		if
-		(
-			SUCCEEDED(FileDialog->Show(this->hMainWindow))
-		)
-		{
-			CComPtr<IShellItem> item;
-
-			if
-			(
-				!SUCCEEDED(FileDialog->GetResult(&item))
-			)
-				return FALSE;
-
-			PWSTR file_path;
-
-			if
-			(
-				!SUCCEEDED
-				(
-					item->GetDisplayName
-					(
-						SIGDN_FILESYSPATH,
-						&file_path
-					)
-				)
-			)
-				return FALSE;
-
-			switch (type)
-			{
-
-			case MainWindow::__MainWindow::FileDialogType::Open:
-				fs.open
-				(
-					file_path,
-					std::ios_base::in
-				);
-			break;
-
-			case MainWindow::__MainWindow::FileDialogType::Save:
-				fs.open
-				(
-					file_path,
-					std::ios_base::out
-				);
-			break;
-
-			}
-
-			CoTaskMemFree(file_path);
-
-			return !fs.fail();
-		}
-
-		return TRUE;
-	}
-
-	BOOL MainWindow::__MainWindow::ShowShutdownDialog()
-	{
-		CComPtr<IShellDispatch> ShellDispatch;
-
-		if
-		(
-			!SUCCEEDED
-			(
-				ShellDispatch.CoCreateInstance
-				(
-					CLSID_Shell,
-					NULL,
-					CLSCTX_INPROC_SERVER
-				)
-			)
-		)
-			return FALSE;
-
-		return SUCCEEDED(ShellDispatch->ShutdownWindows());
-	}
-
 	// Local
 
 	static MainWindow::__MainWindow* pWndObj = nullptr;
@@ -1173,9 +994,10 @@ namespace MainWindow
 
 				if
 				(
-					!MainWindow::pWndObj->OpenTextFileThroughDialog
+					!com_api::OpenTextFileThroughDialog
 					(
-						MainWindow::__MainWindow::FileDialogType::Open,
+						MainWindow::pWndObj->hMainWindow,
+						com_api::FileDialogType::Open,
 						fs
 					)
 				)
@@ -1231,9 +1053,10 @@ namespace MainWindow
 
 				if
 				(
-					!MainWindow::pWndObj->OpenTextFileThroughDialog
+					!com_api::OpenTextFileThroughDialog
 					(
-						MainWindow::__MainWindow::FileDialogType::Save,
+						MainWindow::pWndObj->hMainWindow,
+						com_api::FileDialogType::Save,
 						fs
 					)
 				)
@@ -1286,7 +1109,10 @@ namespace MainWindow
 			break;
 
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
-				if (MainWindow::pWndObj->ShowShutdownDialog())
+				if
+				(
+					com_api::ShowShutdownDialog()
+				)
 					MainWindow::pWndObj->CloseWindow();
 			return 0;
 
