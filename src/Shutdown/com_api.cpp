@@ -3,14 +3,16 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "stdafx.h"
-#include <atlbase.h>
 #include <shobjidl.h>
 #include <shldisp.h>
 #include "com_api.h"
 
-struct COM_ObjectDeleter
+/*
+   Deleter of COM objects for std::unique_ptr with CoUninitialize() calling
+*/
+struct CoUninitializeObjDeleter
 {
-	void operator()(IUnknown* pIUnknown)const
+	inline void operator()(IUnknown* pIUnknown)const
 	{
 		if (pIUnknown)
 			pIUnknown->Release();
@@ -19,7 +21,19 @@ struct COM_ObjectDeleter
 	}
 };
 
-IShellDispatch* CreateShellDispatchObject()
+/*
+   Deleter of COM objects for std::unique_ptr
+*/
+struct COM_ObjDeleter
+{
+	inline void operator()(IUnknown* pIUnknown)const
+	{
+		if (pIUnknown)
+			pIUnknown->Release();
+	}
+};
+
+inline IShellDispatch* CreateShellDispatchObject()
 {
 	{
 		const HRESULT hRes = CoInitializeEx
@@ -54,11 +68,11 @@ BOOL com_api::ShowShutdownDialog()
 	auto pIShellDispatch = std::unique_ptr
 	<
 		IShellDispatch,
-		COM_ObjectDeleter
+		CoUninitializeObjDeleter
 	>
 	(
 		CreateShellDispatchObject(),
-		COM_ObjectDeleter()
+		CoUninitializeObjDeleter()
 	);
 
 	if (!pIShellDispatch.get())
@@ -70,7 +84,7 @@ BOOL com_api::ShowShutdownDialog()
 	);
 }
 
-IFileDialog* CreateFileDialogObject(com_api::FileDialogType type)
+inline IFileDialog* CreateFileDialogObject(com_api::FileDialogType type)
 {
 	{
 		const HRESULT hRes = CoInitializeEx
@@ -123,11 +137,11 @@ BOOL com_api::OpenTextFileThroughDialog(HWND hOwner, com_api::FileDialogType typ
 	auto pIFileDialog = std::unique_ptr
 	<
 		IFileDialog,
-		COM_ObjectDeleter
+		CoUninitializeObjDeleter
 	>
 	(
 		CreateFileDialogObject(type),
-		COM_ObjectDeleter()
+		CoUninitializeObjDeleter()
 	);
 
 	if (!pIFileDialog.get())
@@ -154,12 +168,27 @@ BOOL com_api::OpenTextFileThroughDialog(HWND hOwner, com_api::FileDialogType typ
 		SUCCEEDED(pIFileDialog->Show(hOwner))
 	)
 	{
-		CComPtr<IShellItem> pIShellItem;
-
-		if
+		auto pIShellItem = std::unique_ptr
+		<
+			IShellItem,
+			COM_ObjDeleter
+		>
 		(
-			!SUCCEEDED(pIFileDialog->GetResult(&pIShellItem))
-		)
+			[](IFileDialog* pIFileDialog)->IShellItem*
+			{
+				if (!pIFileDialog)
+					return nullptr;
+
+				IShellItem* pIShellItem = nullptr;
+				pIFileDialog->GetResult(&pIShellItem);
+
+				return pIShellItem;
+			}(pIFileDialog.get()),
+
+			COM_ObjDeleter()
+		);
+
+		if(!pIShellItem.get())
 			return FALSE;
 
 		auto psFilePath = std::unique_ptr
@@ -168,24 +197,30 @@ BOOL com_api::OpenTextFileThroughDialog(HWND hOwner, com_api::FileDialogType typ
 			void(*)(LPWSTR)
 		>
 		(
-			[](IShellItem& pIShellItem)->LPWSTR
+			[](IShellItem* pIShellItem)->LPWSTR
 			{
+				if (!pIShellItem)
+					return nullptr;
+
 				LPWSTR psFilePath = nullptr;
 
-				pIShellItem.GetDisplayName
+				pIShellItem->GetDisplayName
 				(
 					SIGDN_FILESYSPATH,
 					&psFilePath
 				);
 
 				return psFilePath;
-			}(*pIShellItem),
+			}(pIShellItem.get()),
 
 			[](LPWSTR psFilePath)->void
 			{
 				CoTaskMemFree(psFilePath);
 			}
 		);
+
+		if (!psFilePath.get())
+			return FALSE;
 
 		switch (type)
 		{
