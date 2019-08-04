@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "Resources.h"
+#include "win_api.h"
 #include "MainWindow.h"
 #include "AddComputersDialog.h"
 
@@ -109,26 +110,21 @@ namespace AddComputersDialogInternals
 
 	BOOL AddComputersDialogInternals::__AddComputersDialog::AddComputerName()
 	{
-		const int text_length = GetWindowTextLength(this->hComputerNameEdit);
-
-		if (text_length <= 0)
-			return FALSE;
-
-		auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(text_length) + 1);
-
-		GetWindowText
+		auto psComputerName = std::unique_ptr<wchar_t[]>
 		(
-			this->hComputerNameEdit,
-			psComputerName.get(),
-			text_length + 1
+			win_api::GetWndText(this->hComputerNameEdit)
 		);
 
-		MainWindow::__MainWindow::GetInstance()->AddComputerName
+		if (!psComputerName.get())
+			return FALSE;
+
+		if (psComputerName[0] == L'\0')
+			return FALSE;
+
+		return MainWindow::__MainWindow::GetInstance()->AddComputerName
 		(
 			psComputerName.get()
 		);
-
-		return TRUE;
 	}
 
 	void AddComputersDialogInternals::__AddComputersDialog::CloseWindow()

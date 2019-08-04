@@ -334,101 +334,62 @@ namespace MainWindow
 	*/
 	DWORD MainWindow::__MainWindow::GetTimerValue()
 	{
-		const int timer_length = GetWindowTextLength(this->hTimerEdit);
-
-		if (timer_length <= 0)
-			return ULONG_MAX;
-
-		auto psTimer = std::make_unique<wchar_t[]>(static_cast<size_t>(timer_length) + 1);
-
-		GetWindowText
+		auto psTimer = std::unique_ptr<wchar_t[]>
 		(
-			this->hTimerEdit,
-			psTimer.get(),
-			timer_length + 1
+			win_api::GetWndText(this->hTimerEdit)
 		);
 
-		const DWORD timer_value = wcstoul
+		if (!psTimer.get())
+			return ULONG_MAX;
+
+		if (psTimer[0] == L'\0')
+			return ULONG_MAX;
+
+		return wcstoul
 		(
 			psTimer.get(),
 			(wchar_t**)NULL,
 			10
 		);
-
-		return timer_value;
 	}
 
 	BOOL MainWindow::__MainWindow::StartShutdown(int listbox_index, BOOL bRebootAfterShutdown)
 	{
-		LPWSTR computer_name = nullptr;
+		std::unique_ptr<wchar_t[]> psComputerName;
 
 		if (listbox_index >= 0)
 		{
-			const int computer_name_length = ListBox_GetTextLen(this->hComputersListBox, listbox_index);
-
-			if (computer_name_length < 0)
-				return FALSE;
-
-			try
-			{
-				computer_name = new WCHAR[static_cast<size_t>(computer_name_length) + 1];
-			}
-			catch (...)
-			{
-				return FALSE;
-			}
-
-			ListBox_GetText
+			psComputerName = std::unique_ptr<wchar_t[]>
 			(
-				this->hComputersListBox,
-				listbox_index,
-				computer_name
+				win_api::GetListBoxText
+				(
+					this->hComputersListBox,
+					listbox_index
+				)
 			);
+
+			if (!psComputerName.get())
+				return FALSE;
 		}
 
 		if
 		(
-			!win_api::SetShutdownPrivilege(computer_name)
+			!win_api::SetShutdownPrivilege(psComputerName.get())
 		)
-		{	
-			delete[] computer_name;
 			return FALSE;
-		}
 
-		LPWSTR message = nullptr;
+		auto psMessage = std::unique_ptr<wchar_t[]>
+		(
+			win_api::GetWndText(this->hMessageEdit)
+		);
 
-		{
-			const int msg_length = GetWindowTextLength(this->hMessageEdit);
-
-			if (msg_length > 0)
-			{
-				try
-				{
-					message = new WCHAR[static_cast<size_t>(msg_length) + 1];
-				}
-				catch (...)
-				{
-					delete[] computer_name;
-					return FALSE;
-				}
-
-				GetWindowText
-				(
-					this->hMessageEdit,
-					message,
-					msg_length + 1
-				);
-			}
-		}
-
-		const DWORD timer_value = this->GetTimerValue();
-
-		if (timer_value == ULONG_MAX)
-		{
-			delete[] message;
-			delete[] computer_name;
+		if (!psMessage.get())
 			return FALSE;
-		}
+
+		const DWORD cdTimerValue = this->GetTimerValue();
+
+		if (cdTimerValue == ULONG_MAX)
+			return FALSE;
 
 		DWORD dwReason = SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_MINOR_OTHER;
 
@@ -438,51 +399,35 @@ namespace MainWindow
 		)
 			dwReason |= SHTDN_REASON_FLAG_PLANNED;
 
-		const BOOL result = InitiateSystemShutdownEx
+		return InitiateSystemShutdownEx
 		(
-			computer_name,
-			message,
-			timer_value,
+			psComputerName.get(),
+			(psMessage[0] == L'\0') ? (LPWSTR)NULL : psMessage.get(),
+			cdTimerValue,
 			Button_GetCheck(this->hForceCheckBox),
 			bRebootAfterShutdown,
 			dwReason
 		);
-
-		delete[] message;
-		delete[] computer_name;
-		return result;
 	}
 
 	BOOL MainWindow::__MainWindow::StopShutdown(int listbox_index)
-	{	
-		if (listbox_index < 0)
+	{
+		std::unique_ptr<wchar_t[]> psComputerName;
+
+		if (listbox_index >= 0)
 		{
-			if
+			psComputerName = std::unique_ptr<wchar_t[]>
 			(
-				!win_api::SetShutdownPrivilege((LPWSTR)NULL)
-			)
+				win_api::GetListBoxText
+				(
+					this->hComputersListBox,
+					listbox_index
+				)
+			);
+
+			if (!psComputerName.get())
 				return FALSE;
-
-			return AbortSystemShutdown((LPWSTR)NULL);
 		}
-
-		const int computer_name_length = ListBox_GetTextLen
-		(
-			this->hComputersListBox,
-			listbox_index
-		);
-
-		if (computer_name_length < 0)
-			return FALSE;
-
-		auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(computer_name_length) + 1);
-
-		ListBox_GetText
-		(
-			this->hComputersListBox,
-			listbox_index,
-			psComputerName.get()
-		);
 
 		if
 		(
@@ -535,6 +480,31 @@ namespace MainWindow
 			result = result && this->StopShutdown(i);
 
 		return result;
+	}
+
+	void MainWindow::__MainWindow::LoadComputerNamesFromFile(std::wfstream& fs)
+	{
+
+		while
+		(
+			(!fs.eof()) && (!fs.fail())
+		)
+		{
+			std::wstring str;
+
+			std::getline
+			(
+				fs,
+				str
+			);
+
+			if (str.length() == 0)
+				continue;
+
+			this->AddComputerName(str.c_str());
+		}
+
+		fs.close();
 	}
 
 	void MainWindow::__MainWindow::ExecActionButtonClick()
@@ -1019,36 +989,12 @@ namespace MainWindow
 				if (!fs.is_open())
 					break;
 
-				while
-				(
-					(!fs.eof()) && (!fs.fail())
-				)
-				{
-					std::wstring str;
-
-					std::getline
-					(
-						fs,
-						str
-					);
-
-					if (str.length() == 0)
-						continue;
-
-					MainWindow::pWndObj->AddComputerName(str.c_str());
-				}
-
-				fs.close();
+				MainWindow::pWndObj->LoadComputerNamesFromFile(fs);
 			}
 			break;
 
 			case IDS_SAVE_POPUP_ITEM:
 			{
-				const int count = ListBox_GetCount(MainWindow::pWndObj->hComputersListBox);
-
-				if (count <= 0)
-					break;
-
 				std::wfstream fs;
 
 				if
@@ -1078,33 +1024,25 @@ namespace MainWindow
 				if (!fs.is_open())
 					break;
 
-				for (int i = 0; i < count; i++)
-				{
-					const int computer_name_length = ListBox_GetTextLen
+				if
+				(
+					!win_api::SaveListBoxStringsToFile
 					(
 						MainWindow::pWndObj->hComputersListBox,
-						i
-					);
-
-					if (computer_name_length <= 0)
-						continue;
-
-					auto psComputerName = std::make_unique<wchar_t[]>(static_cast<size_t>(computer_name_length) + 1);
-
-					ListBox_GetText
+						fs
+					)
+				)
+					TaskDialog
 					(
-						MainWindow::pWndObj->hComputersListBox,
-						i,
-						psComputerName.get()
+						MainWindow::pWndObj->hMainWindow,
+						MainWindow::pWndObj->hMainInstance,
+						L"Error",
+						L"Failed to save some computer name",
+						L"Possibly this string has invalid characters",
+						TDCBF_OK_BUTTON,
+						TD_ERROR_ICON,
+						(int*)NULL
 					);
-
-					fs << psComputerName.get();
-
-					if ((i + 1) < count)
-						fs << L"\n";
-				}
-
-				fs.close();
 			}
 			break;
 

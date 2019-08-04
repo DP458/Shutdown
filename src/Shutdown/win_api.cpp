@@ -67,3 +67,98 @@ BOOL win_api::SetShutdownPrivilege(LPWSTR lpMachineName)
 
 	return (GetLastError() != ERROR_NOT_ALL_ASSIGNED);
 }
+
+wchar_t* win_api::GetWndText(HWND hWnd)
+{
+	const int cTextLength = GetWindowTextLength(hWnd);
+
+	if (cTextLength < 0)
+		return nullptr;
+
+	wchar_t* psText = nullptr;
+
+	try
+	{
+		psText = new wchar_t[static_cast<size_t>(cTextLength) + 1];
+		psText[0] = L'\0';
+	}
+	catch (...)
+	{
+		return nullptr;
+	}
+
+	GetWindowText
+	(
+		hWnd,
+		psText,
+		cTextLength + 1
+	);
+
+	return psText;
+}
+
+wchar_t* win_api::GetListBoxText(HWND hListBox, int listbox_index)
+{
+	const int cTextLength = ListBox_GetTextLen
+	(
+		hListBox,
+		listbox_index
+	);
+
+	if (cTextLength < 0)
+		return nullptr;
+
+	wchar_t* psText = nullptr;
+
+	try
+	{
+		psText = new wchar_t[static_cast<size_t>(cTextLength) + 1];
+		psText[0] = L'\0';
+	}
+	catch (...)
+	{
+		return nullptr;
+	}
+
+	ListBox_GetText
+	(
+		hListBox,
+		listbox_index,
+		psText
+	);
+
+	return psText;
+}
+
+BOOL win_api::SaveListBoxStringsToFile(HWND hListBox, std::wfstream& fs)
+{
+	const int cStringCount = ListBox_GetCount(hListBox);
+
+	if (cStringCount < 0)
+		return FALSE;
+
+	for (int i = 0; i < cStringCount; i++)
+	{
+		auto psText = std::unique_ptr<wchar_t[]>
+		(
+			win_api::GetListBoxText
+			(
+				hListBox,
+				i
+			)
+		);
+
+		fs << psText.get();
+
+		if(fs.fail())
+			break;
+
+		if ((i + 1) < cStringCount)
+			fs << L"\n";
+	}
+
+	const BOOL result = !fs.fail();
+
+	fs.close();
+	return result;
+}

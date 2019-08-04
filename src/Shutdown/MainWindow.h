@@ -37,6 +37,7 @@ namespace MainWindow
 		BOOL StopShutdown(int listbox_index);
 		BOOL StartComputersShutdown(BOOL bRebootAfterShutdown);
 		BOOL StopComputersShutdown();
+		void LoadComputerNamesFromFile(std::wfstream& fs);
 		void ExecActionButtonClick();
 		void UpdateStatusBarCaption(int count);
 		void UpdateStatusBarCaption(ShutdownStatus status);
