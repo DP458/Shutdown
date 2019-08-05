@@ -26,12 +26,12 @@ namespace AddComputersDialogInternals
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = DLGWINDOWEXTRA;
 		wcex.hInstance = hInstance;
-		wcex.hIcon = (HICON)NULL;
+		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 		wcex.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
 		wcex.lpszMenuName = NULL;
 		wcex.lpszClassName = STR_ADDCOMPUTERS_DIALOG_CLASS;
-		wcex.hIconSm = (HICON)NULL;
+		wcex.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
 		RegisterClassEx(&wcex);
 	}
@@ -146,11 +146,10 @@ namespace AddComputersDialogInternals
 	{
 		switch (message)
 		{
-
-		case WM_DESTROY:
+		case WM_CLOSE:
 			EnableWindow(AddComputersDialogInternals::pDlgObj->hOwnerWindow, TRUE);
 			SetActiveWindow(AddComputersDialogInternals::pDlgObj->hOwnerWindow);
-		return 0;
+		break;
 
 		case WM_COMMAND:
 
@@ -201,10 +200,10 @@ namespace AddComputersDialogInternals
 
 		DlgInternalObj.hDialogWindow = CreateWindowEx
 		(
-			WS_EX_DLGMODALFRAME,
+			(DWORD)NULL,
 			STR_ADDCOMPUTERS_DIALOG_CLASS,
 			STR_ADDCOMPUTERS_DIALOG_TITLE,
-			WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+			WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
 			CW_USEDEFAULT,
 			CW_USEDEFAULT,
 			285,
