@@ -6,6 +6,7 @@
 #include "win_api.h"
 #include "com_api.h"
 #include "MainWindow.h"
+#include <powrprof.h>
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -82,6 +83,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	case L'l':
 	return !LockWorkStation();
+
+	// Suspending
+
+	case L's':
+		if
+		(
+			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+		)
+			return TRUE;
+
+	return !SetSuspendState((BOOLEAN)FALSE, (BOOLEAN)FALSE, (BOOLEAN)FALSE);
+
+	// Hibernation
+
+	case L'H':
+		if
+		(
+			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+		)
+			return TRUE;
+
+	return !SetSuspendState((BOOLEAN)TRUE, (BOOLEAN)FALSE, (BOOLEAN)FALSE);
 
 	}
 
