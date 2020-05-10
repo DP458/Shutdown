@@ -19,3 +19,8 @@ LogoffShortcut=Shortcut for logging off
 Logoff=Log off
 LockShortcut=Shutdown for locking
 Lock=Lock
+;
+SuspendShortcut=Shortcut for suspending
+Suspend=Suspend
+HibernationShortcut=Shortcut for hibernation
+Hibernation=Hibernation

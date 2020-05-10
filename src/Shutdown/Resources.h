@@ -5,6 +5,8 @@
 #define IDI_ICON3 3
 #define IDI_ICON4 4
 #define IDI_ICON5 5
+#define IDI_ICON6 6
+#define IDI_ICON7 7
 
 #define APP_VERSION 7,6,2,0
 #define STR_APP_VERSION L"7.6.2.0"

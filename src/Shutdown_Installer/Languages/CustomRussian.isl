@@ -19,3 +19,8 @@ LogoffShortcut=Значок на выход из системы
 Logoff=Выход из системы
 LockShortcut=Значок на блокировку
 Lock=Заблокировать
+;
+SuspendShortcut=Значок на спящий режим
+Suspend=Спящий режим
+HibernationShortcut=Значок на гибернацию
+Hibernation=Гибернация
