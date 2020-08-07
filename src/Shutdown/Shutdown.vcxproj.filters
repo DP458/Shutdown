@@ -13,11 +13,8 @@
     <Filter Include="stdafx">
       <UniqueIdentifier>{c7072088-9545-45b0-86b2-f8daccc3980f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="com_api">
-      <UniqueIdentifier>{fc0f1640-1b94-4964-a2c0-2a7abea372d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="win_api">
-      <UniqueIdentifier>{e66144d1-e4c7-4cf7-843b-43f8744b2d69}</UniqueIdentifier>
+    <Filter Include="MainStaticObject">
+      <UniqueIdentifier>{6220d4e4-e925-4e31-b074-7b530e45d1d7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,11 +28,8 @@
     <ClCompile Include="AddComputersDialog.cpp">
       <Filter>AddComputersDialog</Filter>
     </ClCompile>
-    <ClCompile Include="com_api.cpp">
-      <Filter>com_api</Filter>
-    </ClCompile>
-    <ClCompile Include="win_api.cpp">
-      <Filter>win_api</Filter>
+    <ClCompile Include="MainStaticObject.cpp">
+      <Filter>MainStaticObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,12 +63,10 @@
     <ClInclude Include="AddComputersDialog.h">
       <Filter>AddComputersDialog</Filter>
     </ClInclude>
-    <ClInclude Include="com_api.h">
-      <Filter>com_api</Filter>
+    <ClInclude Include="MainStaticObject.h">
+      <Filter>MainStaticObject</Filter>
     </ClInclude>
-    <ClInclude Include="win_api.h">
-      <Filter>win_api</Filter>
-    </ClInclude>
+    <ClInclude Include="Shutdown.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Shutdown.manifest" />

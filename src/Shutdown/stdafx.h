@@ -14,3 +14,8 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <powrprof.h>
+#include <shobjidl.h>
+#include <shldisp.h>
+#include "MainStaticObject.h"
+#include "Shutdown.h"

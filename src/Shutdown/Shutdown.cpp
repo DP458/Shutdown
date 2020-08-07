@@ -3,10 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "stdafx.h"
-#include "win_api.h"
-#include "com_api.h"
 #include "MainWindow.h"
-#include <powrprof.h>
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -21,7 +18,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	case L'A':
 		if
 		(
-			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			!Shutdown::MainStaticObject::SetShutdownPrivilege((LPWSTR)NULL)
 		)
 			return TRUE;
 
@@ -30,14 +27,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Shutdown Windows Dialog
 
 	case L'D':
-	return !com_api::ShowShutdownDialog();
+	return !Shutdown::MainStaticObject::ShowShutdownDialog();
 
 	// Shutdown
 
 	case L'S':
 		if
 		(
-			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			!Shutdown::MainStaticObject::SetShutdownPrivilege((LPWSTR)NULL)
 		)
 			return TRUE;
 
@@ -56,7 +53,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	case L'R':
 		if
 		(
-			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			!Shutdown::MainStaticObject::SetShutdownPrivilege((LPWSTR)NULL)
 		)
 			return TRUE;
 
@@ -89,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	case L's':
 		if
 		(
-			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			!Shutdown::MainStaticObject::SetShutdownPrivilege((LPWSTR)NULL)
 		)
 			return TRUE;
 
@@ -100,7 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	case L'H':
 		if
 		(
-			!win_api::SetShutdownPrivilege((LPWSTR)NULL)
+			!Shutdown::MainStaticObject::SetShutdownPrivilege((LPWSTR)NULL)
 		)
 			return TRUE;
 
