@@ -231,6 +231,52 @@ namespace MainWindow
 		fs.close();
 	}
 
+	void MainWindow::__MainWindow::SaveComputerNamesToFile()
+	{
+		if (ListBox_GetCount(this->hComputersListBox) <= 0)
+			return;
+
+		std::wfstream fs;
+
+		if
+		(
+			!Shutdown::MainStaticObject::OpenTextFileThroughDialog(this->hMainWindow, Shutdown::FileDialogType::Save, fs)
+		)
+		{
+			TaskDialog
+			(
+				this->hMainWindow,
+				this->hMainInstance,
+				L"Error",
+				L"Failed to open text file",
+				(PCWSTR)NULL,
+				TDCBF_OK_BUTTON,
+				TD_ERROR_ICON,
+				(int*)NULL
+			);
+			return;
+		}
+
+		if (!fs.is_open())
+			return;
+
+		if
+		(
+			!Shutdown::MainStaticObject::SaveListBoxStringsToFile(this->hComputersListBox, fs)
+		)
+			TaskDialog
+			(
+				this->hMainWindow,
+				this->hMainInstance,
+				L"Error",
+				L"Failed to save some computer name",
+				L"Possibly this string has invalid characters",
+				TDCBF_OK_BUTTON,
+				TD_ERROR_ICON,
+				(int*)NULL
+			);
+	}
+
 	void MainWindow::__MainWindow::ExecActionButtonClick()
 	{
 		switch (ComboBox_GetCurSel(this->hActionsComboBox))
@@ -607,7 +653,7 @@ namespace MainWindow
 		(
 			this->hMainWindow,
 			this->hMainInstance,
-			STR_ABOUT_POPUP_ITEM,
+			STR_ABOUT_DIALOG_TITLE,
 			STR_APP_TITLE,
 			ws_stream.str().c_str(),
 			TDCBF_OK_BUTTON,
@@ -634,7 +680,6 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
-			EnableWindow(this->hExecActionButton, TRUE);
 			ListBox_SetCurSel(this->hComputersListBox, -1);
 			EnableWindow(this->hComputersListBox, TRUE);
 			EnableWindow(this->hAddComputersButton, TRUE);
@@ -656,7 +701,6 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
-			EnableWindow(this->hExecActionButton, TRUE);
 			ListBox_SetCurSel(this->hComputersListBox, -1);
 			EnableWindow(this->hComputersListBox, FALSE);
 			EnableWindow(this->hAddComputersButton, FALSE);
@@ -678,7 +722,6 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
-			EnableWindow(this->hExecActionButton, TRUE);
 			ListBox_SetCurSel(this->hComputersListBox, -1);
 			EnableWindow(this->hComputersListBox, TRUE);
 			EnableWindow(this->hAddComputersButton, TRUE);
@@ -700,7 +743,6 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
-			EnableWindow(this->hExecActionButton, FALSE);
 			ListBox_SetCurSel(this->hComputersListBox, -1);
 			EnableWindow(this->hComputersListBox, FALSE);
 			EnableWindow(this->hAddComputersButton, FALSE);
@@ -763,13 +805,20 @@ namespace MainWindow
 				{
 
 				case IDS_EXECACTION_BUTTON_TITLE:
+				{
+					UINT uflags = MF_STRING;
+
+					if (ComboBox_GetCurSel(MainWindow::pWndObj->hActionsComboBox) < 0)
+						uflags |= MF_GRAYED;
+
 					AppendMenu
 					(
 						splitPopupMenu,
-						MF_STRING,
+						uflags,
 						IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM,
 						STR_RESET_ACTIONS_COMBOBOX_POPUP_ITEM
 					);
+				}
 					AppendMenu
 					(
 						splitPopupMenu,
@@ -793,6 +842,13 @@ namespace MainWindow
 						MF_STRING,
 						IDS_ADD_COMPUTERS_FROM_FILE_POPUP_ITEM,
 						STR_ADD_COMPUTERS_FROM_FILE_POPUP_ITEM
+					);
+					AppendMenu
+					(
+						splitPopupMenu,
+						MF_STRING,
+						IDS_SAVE_COMPUTERS_TO_FILE_POPUP_ITEM,
+						STR_SAVE_COMPUTERS_TO_FILE_POPUP_ITEM
 					);
 					break;
 
@@ -852,6 +908,10 @@ namespace MainWindow
 
 				case IDS_ADD_COMPUTERS_FROM_FILE_POPUP_ITEM:
 					MainWindow::pWndObj->LoadComputerNamesFromFile();
+					break;
+
+				case IDS_SAVE_COMPUTERS_TO_FILE_POPUP_ITEM:
+					MainWindow::pWndObj->SaveComputerNamesToFile();
 					break;
 
 				case IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM:
@@ -936,56 +996,7 @@ namespace MainWindow
 			break;
 
 			case IDS_SAVE_POPUP_ITEM:
-			{
-				std::wfstream fs;
-
-				if
-				(
-					!Shutdown::MainStaticObject::OpenTextFileThroughDialog
-					(
-						MainWindow::pWndObj->hMainWindow,
-						Shutdown::FileDialogType::Save,
-						fs
-					)
-				)
-				{
-					TaskDialog
-					(
-						MainWindow::pWndObj->hMainWindow,
-						MainWindow::pWndObj->hMainInstance,
-						L"Error",
-						L"Failed to open text file",
-						(PCWSTR)NULL,
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-					break;
-				}
-
-				if (!fs.is_open())
-					break;
-
-				if
-				(
-					!Shutdown::MainStaticObject::SaveListBoxStringsToFile
-					(
-						MainWindow::pWndObj->hComputersListBox,
-						fs
-					)
-				)
-					TaskDialog
-					(
-						MainWindow::pWndObj->hMainWindow,
-						MainWindow::pWndObj->hMainInstance,
-						L"Error",
-						L"Failed to save some computer name",
-						L"Possibly this string has invalid characters",
-						TDCBF_OK_BUTTON,
-						TD_ERROR_ICON,
-						(int*)NULL
-					);
-			}
+				MainWindow::pWndObj->SaveComputerNamesToFile();
 			break;
 
 			case IDS_SYSTEMDIALOG_POPUP_ITEM:
@@ -1007,6 +1018,10 @@ namespace MainWindow
 
 			case IDS_RESET_MESSAGE_EDIT_POPUP_ITEM:
 				MainWindow::pWndObj->ClearMessage();
+			break;
+
+			case IDS_SOURCE_AT_GITHUB_POPUP_ITEM:
+				ShellExecute(NULL, NULL, L"https://github.com/DP458/Shutdown", NULL, NULL, SW_SHOW);
 			break;
 
 			case IDS_ABOUT_POPUP_ITEM:
@@ -1140,7 +1155,7 @@ namespace MainWindow
 		CREATESTRUCT execActionButtonCreateStruct = { 0 };
 		execActionButtonCreateStruct.lpszClass = WC_BUTTON;
 		execActionButtonCreateStruct.lpszName = STR_EXECACTION_BUTTON_TITLE;
-		execActionButtonCreateStruct.style = WS_VISIBLE | WS_CHILD | WS_DISABLED | BS_SPLITBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT;
+		execActionButtonCreateStruct.style = WS_VISIBLE | WS_CHILD | BS_SPLITBUTTON | BS_CENTER | BS_VCENTER | BS_TEXT;
 		execActionButtonCreateStruct.x = 220;
 		execActionButtonCreateStruct.y = 25;
 		execActionButtonCreateStruct.cx = 80;

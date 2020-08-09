@@ -15,7 +15,7 @@
 #define IDI_DIALOG_ADD_COMOUTERS 1
 #define IDI_DIALOG_EDIT_COMOUTERS 2
 
-#define APP_VERSION 8,0,0,0
+#define APP_VERSION 8,0,1,0
 #define STR_APP_VERSION L"8.0.0.0"
 #define STR_APP_DESCRIPTION L"Graphical app to shutdown local host or remote ones"
 #define STR_APP_NAME L"Shutdown Windows"
@@ -90,9 +90,11 @@
 #define IDS_RESET_MESSAGE_EDIT_POPUP_ITEM 219
 
 #define IDS_ADD_COMPUTERS_FROM_FILE_POPUP_ITEM 280
-#define IDS_OPEN_SYSTEM_DIALOG_POPUP_ITEM 281
+#define IDS_SAVE_COMPUTERS_TO_FILE_POPUP_ITEM 281
+#define IDS_OPEN_SYSTEM_DIALOG_POPUP_ITEM 282
 
 #define IDS_HELP_POPUP_MENU 290
+#define IDS_SOURCE_AT_GITHUB_POPUP_ITEM 298
 #define IDS_ABOUT_POPUP_ITEM 299
 
 #define STR_FILE_POPUP_MENU L"&File"
@@ -108,10 +110,18 @@
 #define STR_RESET_MESSAGE_EDIT_POPUP_ITEM L"&Clear message"
 
 #define STR_ADD_COMPUTERS_FROM_FILE_POPUP_ITEM L"&Add from file"
+#define STR_SAVE_COMPUTERS_TO_FILE_POPUP_ITEM L"&Save to file"
 #define STR_OPEN_SYSTEM_DIALOG_POPUP_ITEM L"&Open system dialog"
 
 #define STR_HELP_POPUP_MENU L"&Help"
+#define STR_SOURCE_AT_GITHUB_POPUP_ITEM L"&Source at GitHub"
 #define STR_ABOUT_POPUP_ITEM L"&About"
+
+// About Dialog
+
+#define IDS_ABOUT_DIALOG_TITLE 800
+
+#define STR_ABOUT_DIALOG_TITLE L"About"
 
 // Add Computers Dialog
 

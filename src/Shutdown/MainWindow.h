@@ -30,6 +30,7 @@ namespace MainWindow
 		BOOL StartComputersShutdown(BOOL bRebootAfterShutdown);
 		BOOL StopComputersShutdown();
 		void LoadComputerNamesFromFile();
+		void SaveComputerNamesToFile();
 		void ExecActionButtonClick();
 		void UpdateStatusBarCaption(int count);
 		void UpdateStatusBarCaption(Shutdown::ShutdownStatus status);

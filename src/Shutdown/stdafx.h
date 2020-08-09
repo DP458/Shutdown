@@ -17,5 +17,6 @@
 #include <powrprof.h>
 #include <shobjidl.h>
 #include <shldisp.h>
+#include <shellapi.h>
 #include "MainStaticObject.h"
 #include "Shutdown.h"

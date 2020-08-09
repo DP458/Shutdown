@@ -1,6 +1,6 @@
 #define MyAppName "Shutdown"
 #define MyAppPublisher "DP458"
-#define MyAppVersion "8.0.0"
+#define MyAppVersion "8.0.1"
 #define MyAppExeName "Shutdown.exe"
 #define MyProjectFolder "..\"
 #define QuickLaunchFolder "{userappdata}\Microsoft\Internet Explorer\Quick Launch"
@@ -35,6 +35,7 @@ ShowTasksTreeLines=yes
 ASLRCompatible=yes
 DEPCompatible=yes
 PrivilegesRequired=admin
+LicenseFile="License.txt"
 
 [Tasks]
 Name: "ShutdownQuickLaunchBarIcon"; Description: "{cm:ShutdownShortcut}"; GroupDescription: "{cm:QuickLaunchBarShortcuts}"; Flags: "checkablealone";
