@@ -645,9 +645,9 @@ namespace MainWindow
 	void MainWindow::__MainWindow::ShowAboutDialog()
 	{
 		std::wstringstream ws_stream;
-		ws_stream << L"Version: " << STR_APP_VERSION << std::endl;
-		ws_stream << L"Developer: " << L"DP458" << std::endl;
-		ws_stream << L"Description: " << STR_APP_DESCRIPTION;
+		ws_stream << STR_ABOUT_DIALOG_VERSION_CAPTION << STR_APP_VERSION << std::endl;
+		ws_stream << STR_ABOUT_DIALOG_DEVELOPER_CAPTION << STR_APP_DEVELOPER << std::endl;
+		ws_stream << STR_ABOUT_DIALOG_DESCRIPTION_CAPTION << STR_APP_DESCRIPTION;
 
 		TaskDialog
 		(
@@ -677,6 +677,7 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+			EnableMenuItem(GetMenu(this->hMainWindow), IDS_EXECUTE_ACTION_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
@@ -698,6 +699,7 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
+			EnableMenuItem(GetMenu(this->hMainWindow), IDS_EXECUTE_ACTION_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
@@ -719,6 +721,7 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
+			EnableMenuItem(GetMenu(this->hMainWindow), IDS_EXECUTE_ACTION_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_ENABLED);
@@ -740,6 +743,7 @@ namespace MainWindow
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_NEW_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_OPEN_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_SAVE_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
+			EnableMenuItem(GetMenu(this->hMainWindow), IDS_EXECUTE_ACTION_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_COMPUTERS_LISTBOX_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
 			EnableMenuItem(GetMenu(this->hMainWindow), IDS_RESET_MESSAGE_EDIT_POPUP_ITEM, MF_BYCOMMAND | MF_GRAYED);
@@ -1008,6 +1012,10 @@ namespace MainWindow
 				MainWindow::pWndObj->CloseWindow();
 			return 0;
 
+			case IDS_EXECUTE_ACTION_POPUP_ITEM:
+				MainWindow::pWndObj->ExecActionButtonClick();
+			break;
+
 			case IDS_RESET_ACTIONS_COMBOBOX_POPUP_ITEM:
 				Shutdown::MainStaticObject::ComboBoxSelectItem(MainWindow::pWndObj->hActionsComboBox, -1);
 			break;
@@ -1022,6 +1030,10 @@ namespace MainWindow
 
 			case IDS_SOURCE_AT_GITHUB_POPUP_ITEM:
 				ShellExecute(NULL, NULL, L"https://github.com/DP458/Shutdown", NULL, NULL, SW_SHOW);
+			break;
+
+			case IDS_VIEW_WIKI_POPUP_ITEM:
+				ShellExecute(NULL, NULL, L"https://github.com/DP458/Shutdown/wiki", NULL, NULL, SW_SHOW);
 			break;
 
 			case IDS_ABOUT_POPUP_ITEM:
