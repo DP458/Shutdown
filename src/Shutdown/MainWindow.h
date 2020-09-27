@@ -2,9 +2,29 @@
 
 namespace MainWindow
 {
-
 	class __MainWindow
 	{
+		class MainWindowProc
+		{
+		private:
+			inline MainWindowProc();
+			static void ActionComboBoxSelectionChanged(MainWindow::__MainWindow* pWndObj);
+			static void ExecActionButtonClick(MainWindow::__MainWindow* pWndObj);
+
+		public:
+			static __MainWindow* GetInstance(HWND hWnd);
+			static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		};
+
+		class ComputersDialogProc
+		{
+		private:
+			inline ComputersDialogProc();
+			static __MainWindow* GetMainWindowClassInstance(HWND hwndDlg);
+
+		public:
+			static INT_PTR CALLBACK DlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+		};
 
 	private:
 		HINSTANCE hMainInstance;
@@ -23,7 +43,6 @@ namespace MainWindow
 		HWND hMessageEdit;
 		HWND hStatusBar;
 
-		__MainWindow(HINSTANCE hInstance);
 		DWORD GetTimerValue();
 		BOOL StartShutdown(int listbox_index, BOOL bRebootAfterShutdown);
 		BOOL StopShutdown(int listbox_index);
@@ -31,7 +50,6 @@ namespace MainWindow
 		BOOL StopComputersShutdown();
 		void LoadComputerNamesFromFile();
 		void SaveComputerNamesToFile();
-		void ExecActionButtonClick();
 		void UpdateStatusBarCaption(int count);
 		void UpdateStatusBarCaption(Shutdown::ShutdownStatus status);
 		void ClearComputerNames();
@@ -39,17 +57,12 @@ namespace MainWindow
 		void ShowAddComputersDialog();
 		void ShowEditComputersDialog();
 		void ShowAboutDialog();
-		void CloseWindow();
-		void ActionComboBoxSelectionChanged();
-		friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	public:
+		__MainWindow(HINSTANCE hInstance);
 		BOOL AddComputerName(LPCWSTR computer_name);
 		wchar_t* GetSelectedComputerName();
 		BOOL ReplaceSelectedComputerName(LPCWSTR computer_name);
-		static BOOL ShowDialog(HINSTANCE hInstance);
-		static __MainWindow* GetInstance();
-
+		BOOL ShowDialog();
 	};
-
 }

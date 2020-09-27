@@ -1,13 +1,9 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "stdafx.h"
+#include "Application.h"
 #include "MainWindow.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-
 	// Processing of command line args
 
 	switch (lpCmdLine[0])
@@ -107,7 +103,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//
 
-	if (!MainWindow::__MainWindow::ShowDialog(hInstance))
+	Shutdown::Application app;
+
+	MainWindow::__MainWindow mainWindow(hInstance);
+
+	if (!mainWindow.ShowDialog())
 	{
 		TaskDialog
 		(
@@ -123,26 +123,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return TRUE;
 	}
 
-	BOOL bRet = FALSE;
-	MSG msg = { 0 };
-
-	while
-	(
-		bRet = GetMessage
-		(
-			&msg,
-			(HWND)NULL,
-			0U, 
-			0U
-		)
-	)
-	{
-		if (bRet == -1)
-			break;
-
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	return (int)msg.wParam;
+	return app.Run();
 }

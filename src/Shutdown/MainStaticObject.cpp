@@ -1,7 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "stdafx.h"
 
 HWND Shutdown::MainStaticObject::CreateWindowFromStruct(const CREATESTRUCT& createStruct)
@@ -356,11 +352,6 @@ BOOL Shutdown::MainStaticObject::OpenTextFileThroughDialog(HWND hOwner, Shutdown
 	return TRUE;
 }
 
-//Shutdown::WindowStruct* Shutdown::MainStaticObject::GetWindowStruct(HWND hwnd)
-//{
-//	return reinterpret_cast<Shutdown::WindowStruct*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-//}
-
 HFONT Shutdown::MainStaticObject::GetSystemFont()
 {
 	NONCLIENTMETRICS metrics = { 0 };
@@ -373,4 +364,9 @@ void Shutdown::MainStaticObject::ComboBoxSelectItem(HWND hComboBox, int index)
 {
 	ComboBox_SetCurSel(hComboBox, index);
 	SNDMSG((GetParent(hComboBox)), WM_COMMAND, MAKEWPARAM(GetMenu(hComboBox), CBN_SELCHANGE), (LPARAM)hComboBox);
+}
+
+void Shutdown::MainStaticObject::CloseWindow(HWND hWnd)
+{
+	PostMessage(hWnd, WM_CLOSE, (WPARAM)NULL, (LPARAM)NULL);
 }

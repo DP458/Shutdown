@@ -102,10 +102,6 @@ namespace Shutdown
         Save = 2
     };
 
-    /*struct WindowStruct
-    {
-    };*/
-
     class MainStaticObject
     {
     public:
@@ -116,9 +112,9 @@ namespace Shutdown
         static BOOL SaveListBoxStringsToFile(HWND hListBox, std::wfstream& fs);
         static BOOL ShowShutdownDialog();
         static BOOL OpenTextFileThroughDialog(HWND hOwner, FileDialogType type, std::wfstream& fs);
-        //static WindowStruct* GetWindowStruct(HWND hwnd);
         static HFONT GetSystemFont();
         static void ComboBoxSelectItem(HWND hComboBox, int index);
+        static void CloseWindow(HWND hWnd);
 
     private:
         inline MainStaticObject();

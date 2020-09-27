@@ -144,9 +144,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AddComputersDialog.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ComputersDialog.cpp" />
     <ClCompile Include="MainStaticObject.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="MainWindowProc.cpp" />
     <ClCompile Include="Shutdown.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -159,14 +161,16 @@
     <ResourceCompile Include="Shutdown.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Hibernation.ico" />
     <Image Include="Lock.ico" />
     <Image Include="Logoff.ico" />
     <Image Include="Reboot.ico" />
     <Image Include="Shutdown.ico" />
     <Image Include="ShutdownDialog.ico" />
+    <Image Include="Suspend.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AddComputersDialog.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="MainStaticObject.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Resources.h" />

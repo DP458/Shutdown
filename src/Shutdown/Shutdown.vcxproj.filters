@@ -7,29 +7,35 @@
     <Filter Include="MainWindow">
       <UniqueIdentifier>{b5b39714-5b98-4535-805f-f1773ee540a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AddComputersDialog">
-      <UniqueIdentifier>{3dc020e8-3044-470c-ba8a-fa5a6724cdef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="stdafx">
       <UniqueIdentifier>{c7072088-9545-45b0-86b2-f8daccc3980f}</UniqueIdentifier>
     </Filter>
     <Filter Include="MainStaticObject">
       <UniqueIdentifier>{6220d4e4-e925-4e31-b074-7b530e45d1d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{1f684099-7425-46d4-b606-9e568e81873d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shutdown.cpp" />
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>MainWindow</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>stdafx</Filter>
     </ClCompile>
-    <ClCompile Include="AddComputersDialog.cpp">
-      <Filter>AddComputersDialog</Filter>
-    </ClCompile>
     <ClCompile Include="MainStaticObject.cpp">
       <Filter>MainStaticObject</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindowProc.cpp">
+      <Filter>MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputersDialog.cpp">
+      <Filter>MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>MainWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -48,25 +54,31 @@
     <Image Include="ShutdownDialog.ico">
       <Filter>Icons</Filter>
     </Image>
+    <Image Include="Hibernation.ico">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="Suspend.ico">
+      <Filter>Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Shutdown.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources.h" />
-    <ClInclude Include="MainWindow.h">
-      <Filter>MainWindow</Filter>
-    </ClInclude>
+    <ClInclude Include="Shutdown.h" />
     <ClInclude Include="stdafx.h">
       <Filter>stdafx</Filter>
-    </ClInclude>
-    <ClInclude Include="AddComputersDialog.h">
-      <Filter>AddComputersDialog</Filter>
     </ClInclude>
     <ClInclude Include="MainStaticObject.h">
       <Filter>MainStaticObject</Filter>
     </ClInclude>
-    <ClInclude Include="Shutdown.h" />
+    <ClInclude Include="MainWindow.h">
+      <Filter>MainWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Shutdown.manifest" />

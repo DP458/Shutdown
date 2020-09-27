@@ -15,8 +15,8 @@
 #define IDI_DIALOG_ADD_COMOUTERS 1
 #define IDI_DIALOG_EDIT_COMOUTERS 2
 
-#define APP_VERSION 8,0,3,0
-#define STR_APP_VERSION L"8.0.3.0"
+#define APP_VERSION 8,1,0,0
+#define STR_APP_VERSION L"8.1.0.0"
 #define STR_APP_DEVELOPER L"DP458"
 #define STR_APP_DESCRIPTION L"Graphical app to shutdown local host or remote ones"
 #define STR_APP_NAME L"Shutdown Windows"
@@ -134,7 +134,7 @@
 #define STR_ABOUT_DIALOG_DEVELOPER_CAPTION L"Developer: "
 #define STR_ABOUT_DIALOG_DESCRIPTION_CAPTION L"Description: "
 
-// Add Computers Dialog
+// Add/Edit Computers Dialog
 
 #define IDS_ADDCOMPUTERS_DIALOG_TITLE 900
 #define IDS_EDITCOMPUTERS_DIALOG_TITLE 901
